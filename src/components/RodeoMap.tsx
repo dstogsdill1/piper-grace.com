@@ -1,30 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import { Icon, divIcon } from "leaflet";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { rodeoEvents, RodeoEvent } from "@/data/rodeoEvents";
-
-// Leaflet CSS must be imported
-import "leaflet/dist/leaflet.css";
-
-// Custom cowboy hat marker icon
-const cowboyHatIcon = new Icon({
-  iconUrl: "/images/rodeo-marker.png",
-  iconSize: [40, 40],
-  iconAnchor: [20, 40],
-  popupAnchor: [0, -40],
-});
-
-// Fallback emoji marker if image not available
-const createEmojiMarker = () =>
-  divIcon({
-    html: `<div style="font-size: 28px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">🤠</div>`,
-    className: "emoji-marker",
-    iconSize: [40, 40],
-    iconAnchor: [20, 20],
-    popupAnchor: [0, -20],
-  });
 
 interface RodeoMapProps {
   className?: string;
@@ -37,95 +14,202 @@ export default function RodeoMap({
   height = "h-[500px]",
   showList = true,
 }: RodeoMapProps) {
+  const mapContainer = useRef<HTMLDivElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const map = useRef<any>(null);
   const [selectedEvent, setSelectedEvent] = useState<RodeoEvent | null>(null);
-  const [useEmoji, setUseEmoji] = useState(true);
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const [mapError, setMapError] = useState(false);
 
-  // Check if custom marker image exists
+  const accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
+
+  // Fly to a rodeo location
+  const flyToRodeo = useCallback((event: RodeoEvent) => {
+    if (!map.current || !mapLoaded) return;
+    
+    setSelectedEvent(event);
+    
+    map.current.flyTo({
+      center: [event.lng, event.lat],
+      zoom: 12,
+      pitch: 60,
+      bearing: Math.random() * 90 - 45,
+      duration: 2500,
+      essential: true,
+    });
+  }, [mapLoaded]);
+
+  // Initialize Mapbox
   useEffect(() => {
-    const img = new Image();
-    img.onload = () => setUseEmoji(false);
-    img.onerror = () => setUseEmoji(true);
-    img.src = "/images/rodeo-marker.png";
-  }, []);
+    if (!accessToken) {
+      setMapError(true);
+      return;
+    }
 
-  // Center on continental US
-  const center: [number, number] = [39.5, -98.35];
-  const zoom = 4;
+    if (map.current || !mapContainer.current) return;
 
-  const markerIcon = useEmoji ? createEmojiMarker() : cowboyHatIcon;
+    const initMap = async () => {
+      try {
+        const mapboxgl = (await import("mapbox-gl")).default;
+
+        // Load CSS
+        if (!document.querySelector('link[href*="mapbox-gl"]')) {
+          const link = document.createElement("link");
+          link.rel = "stylesheet";
+          link.href = "https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css";
+          document.head.appendChild(link);
+        }
+
+        mapboxgl.accessToken = accessToken;
+
+        map.current = new mapboxgl.Map({
+          container: mapContainer.current!,
+          style: "mapbox://styles/mapbox/satellite-streets-v12",
+          center: [-98.35, 39.5],
+          zoom: 3.5,
+          pitch: 45,
+          bearing: 0,
+          interactive: true,
+          attributionControl: false,
+        });
+
+        map.current.addControl(new mapboxgl.NavigationControl(), "top-left");
+
+        map.current.on("load", () => {
+          setMapLoaded(true);
+
+          // Add glowing markers for each rodeo
+          rodeoEvents.forEach((event, index) => {
+            const el = document.createElement("div");
+            el.className = "rodeo-marker";
+            el.style.cursor = "pointer";
+
+            const colors = [
+              "#f43f5e", "#f97316", "#eab308", "#22c55e", "#06b6d4", 
+              "#8b5cf6", "#ec4899", "#f43f5e", "#f97316", "#eab308",
+              "#22c55e", "#06b6d4", "#8b5cf6", "#ec4899", "#f43f5e"
+            ];
+            const color = colors[index % colors.length];
+
+            el.innerHTML = `
+              <div style="position: relative;">
+                <div style="position: absolute; inset: -15px; background: radial-gradient(circle, ${color}60, transparent 70%); border-radius: 50%; animation: rodeo-pulse 2s ease-in-out infinite;"></div>
+                <div style="font-size: 36px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));">🤠</div>
+              </div>
+            `;
+
+            el.addEventListener("click", () => flyToRodeo(event));
+
+            const popup = new mapboxgl.Popup({ offset: 25, closeButton: true })
+              .setHTML(`
+                <div style="padding: 12px; min-width: 220px; font-family: system-ui, sans-serif;">
+                  <h3 style="font-weight: bold; font-size: 16px; color: #8b5cf6; margin-bottom: 8px;">
+                    🤠 ${event.name}
+                  </h3>
+                  <p style="font-size: 13px; color: #555; margin: 4px 0;">
+                    📍 ${event.city}, ${event.state}
+                  </p>
+                  <p style="font-size: 13px; color: #555; margin: 4px 0;">
+                    🏟️ ${event.venue}
+                  </p>
+                  <p style="font-size: 13px; color: #555; margin: 4px 0;">
+                    📅 ${new Date(event.date).toLocaleDateString("en-US", {
+                      month: "long",
+                      day: "numeric", 
+                      year: "numeric",
+                    })}
+                  </p>
+                  ${event.description ? `<p style="font-size: 12px; color: #777; font-style: italic; margin-top: 8px; border-top: 1px solid #eee; padding-top: 8px;">${event.description}</p>` : ""}
+                  ${event.website ? `<a href="${event.website}" target="_blank" rel="noopener" style="display: inline-block; margin-top: 8px; font-size: 12px; color: #8b5cf6; text-decoration: none; font-weight: 600;">Visit Website →</a>` : ""}
+                </div>
+              `);
+
+            new mapboxgl.Marker(el)
+              .setLngLat([event.lng, event.lat])
+              .setPopup(popup)
+              .addTo(map.current!);
+          });
+
+          // Add dashed route connecting rodeos chronologically
+          const sortedEvents = [...rodeoEvents].sort((a, b) => 
+            new Date(a.date).getTime() - new Date(b.date).getTime()
+          );
+          const coordinates = sortedEvents.map((e) => [e.lng, e.lat]);
+
+          map.current!.addSource("rodeo-route", {
+            type: "geojson",
+            data: {
+              type: "Feature",
+              properties: {},
+              geometry: { type: "LineString", coordinates },
+            },
+          });
+
+          map.current!.addLayer({
+            id: "rodeo-route",
+            type: "line",
+            source: "rodeo-route",
+            layout: { "line-join": "round", "line-cap": "round" },
+            paint: {
+              "line-color": "#f97316",
+              "line-width": 3,
+              "line-opacity": 0.5,
+              "line-dasharray": [2, 4],
+            },
+          });
+
+          // Auto fly-through intro animation
+          setTimeout(() => {
+            if (map.current) {
+              map.current.flyTo({
+                center: [-95.4107, 29.6847],
+                zoom: 7,
+                pitch: 60,
+                bearing: 25,
+                duration: 4000,
+              });
+            }
+          }, 1500);
+        });
+      } catch (error) {
+        console.error("Failed to load Mapbox:", error);
+        setMapError(true);
+      }
+    };
+
+    initMap();
+
+    return () => {
+      map.current?.remove();
+      map.current = null;
+    };
+  }, [accessToken, flyToRodeo]);
+
+  if (!accessToken || mapError) {
+    return (
+      <div className={`${height} w-full flex items-center justify-center bg-base-200 rounded-2xl`}>
+        <div className="text-center px-6">
+          <div className="text-5xl mb-4">🗺️</div>
+          <h3 className="text-xl font-bold text-primary mb-2">Map Loading...</h3>
+          <p className="text-sm opacity-70">Interactive rodeo map coming soon!</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`w-full ${className}`}>
       {/* Map Container */}
-      <div className={`${height} w-full rounded-2xl overflow-hidden shadow-xl border-4 border-primary/30`}>
-        <MapContainer
-          center={center}
-          zoom={zoom}
-          scrollWheelZoom={true}
-          className="h-full w-full"
-          style={{ background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)" }}
-        >
-          {/* Dark themed tile layer */}
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-          />
+      <div 
+        ref={mapContainer}
+        className={`${height} w-full rounded-2xl overflow-hidden shadow-2xl border-4 border-primary/30`}
+      />
 
-          {/* Rodeo Event Markers */}
-          {rodeoEvents.map((event) => (
-            <Marker
-              key={event.id}
-              position={[event.lat, event.lng]}
-              icon={markerIcon}
-              eventHandlers={{
-                click: () => setSelectedEvent(event),
-              }}
-            >
-              <Popup className="rodeo-popup">
-                <div className="min-w-[200px] p-1">
-                  <h3 className="font-bold text-lg text-primary mb-1">
-                    🤠 {event.name}
-                  </h3>
-                  <p className="text-sm text-gray-600 mb-1">
-                    📍 {event.city}, {event.state}
-                  </p>
-                  <p className="text-sm text-gray-600 mb-1">
-                    🏟️ {event.venue}
-                  </p>
-                  <p className="text-sm text-gray-600 mb-2">
-                    📅 {new Date(event.date).toLocaleDateString("en-US", {
-                      month: "long",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                  </p>
-                  {event.description && (
-                    <p className="text-xs text-gray-500 italic mb-2">
-                      {event.description}
-                    </p>
-                  )}
-                  {event.website && (
-                    <a
-                      href={event.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-blue-500 hover:underline"
-                    >
-                      Visit Website →
-                    </a>
-                  )}
-                </div>
-              </Popup>
-            </Marker>
-          ))}
-        </MapContainer>
-      </div>
-
-      {/* Event List */}
+      {/* Event List - Click to fly! */}
       {showList && (
         <div className="mt-6">
           <h3 className="text-xl font-bold text-primary mb-4 flex items-center gap-2">
-            <span>🏇</span> Upcoming Rodeos
+            <span>🏇</span> Upcoming Rodeos <span className="text-sm font-normal opacity-60">(Click to fly there!)</span>
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {rodeoEvents
@@ -138,7 +222,7 @@ export default function RodeoMap({
                       ? "border-primary scale-105"
                       : "border-transparent hover:border-secondary"
                   }`}
-                  onClick={() => setSelectedEvent(event)}
+                  onClick={() => flyToRodeo(event)}
                 >
                   <div className="card-body p-4">
                     <h4 className="card-title text-sm text-primary">
@@ -161,21 +245,24 @@ export default function RodeoMap({
         </div>
       )}
 
-      {/* Custom styles for Leaflet popups */}
+      {/* Mapbox styles */}
       <style jsx global>{`
-        .emoji-marker {
-          background: transparent;
-          border: none;
+        @keyframes rodeo-pulse {
+          0%, 100% { transform: scale(1); opacity: 0.7; }
+          50% { transform: scale(1.4); opacity: 0.3; }
         }
-        .rodeo-popup .leaflet-popup-content-wrapper {
-          border-radius: 12px;
-          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        .mapboxgl-popup-content {
+          border-radius: 16px !important;
+          box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4) !important;
+          padding: 0 !important;
         }
-        .rodeo-popup .leaflet-popup-tip {
-          background: white;
+        .mapboxgl-popup-close-button {
+          font-size: 20px;
+          padding: 8px;
+          color: #888;
         }
-        .leaflet-container {
-          font-family: inherit;
+        .mapboxgl-popup-tip {
+          border-top-color: white !important;
         }
       `}</style>
     </div>
