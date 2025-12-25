@@ -1,0 +1,15 @@
+{
+  "name": "piper-sanity-studio",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "sanity dev",
+    "start": "sanity start",
+    "build": "sanity build",
+    "deploy": "sanity deploy"
+  },
+  "dependencies": {
+    "sanity": "^3.68.0",
+    "@sanity/vision": "^3.68.0"
+  }
+}
