@@ -168,7 +168,7 @@ export default function DiaryEntriesPage() {
                 </div>
 
                 <div className="card-actions justify-end mt-4">
-                  <button onClick={() => setShowNew(false)} className="btn btn-ghost">
+                  <button onClick={() => setShowNew(false)} className="btn btn-ghost text-accent">
                     Cancel
                   </button>
                   <button onClick={saveEntry} className="btn btn-primary gap-2">
@@ -274,7 +274,7 @@ export default function DiaryEntriesPage() {
         )}
       </div>
 
-      <Link href="/diary" className="btn btn-ghost btn-lg mt-4">
+      <Link href="/diary" className="btn btn-ghost btn-lg text-primary mt-4">
         ← Back to Private Space
       </Link>
     </div>

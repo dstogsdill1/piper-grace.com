@@ -162,7 +162,7 @@ export default function NamesPage() {
                   {savedName}
                   <button 
                     onClick={() => removeSaved(savedName)}
-                    className="btn btn-ghost btn-xs"
+                    className="btn btn-ghost btn-xs text-error"
                   >
                     ×
                   </button>
@@ -173,7 +173,7 @@ export default function NamesPage() {
         </motion.div>
       )}
 
-      <Link href="/" className="btn btn-ghost btn-lg mt-4">
+      <Link href="/" className="btn btn-ghost btn-lg text-primary mt-4">
         ← Back to Home
       </Link>
     </div>

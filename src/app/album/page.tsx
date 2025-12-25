@@ -67,9 +67,9 @@ export default function AlbumPage() {
     <div className="min-h-screen py-8 px-4">
       {/* Header */}
       <div className="max-w-7xl mx-auto mb-8">
-        <Link href="/" className="btn btn-ghost gap-2 mb-4">
+        <Link href="/" className="btn btn-ghost text-primary gap-2 mb-4">
           <ArrowLeft className="w-5 h-5" />
-          Back Home
+          ← Back Home
         </Link>
         
         <div className="text-center">

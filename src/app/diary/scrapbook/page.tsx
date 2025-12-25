@@ -258,7 +258,7 @@ export default function ScrapbookPage() {
                 </div>
 
                 <div className="card-actions justify-end mt-4">
-                  <button onClick={() => setShowCreate(false)} className="btn btn-ghost">
+                  <button onClick={() => setShowCreate(false)} className="btn btn-ghost text-accent">
                     Cancel
                   </button>
                   <button 
@@ -395,7 +395,7 @@ export default function ScrapbookPage() {
         )}
       </div>
 
-      <Link href="/diary" className="btn btn-ghost btn-lg mt-4">
+      <Link href="/diary" className="btn btn-ghost btn-lg text-primary mt-4">
         ← Back to Private Space
       </Link>
     </div>

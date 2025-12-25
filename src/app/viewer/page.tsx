@@ -154,7 +154,7 @@ export default function ViewerPage() {
         </motion.div>
       </div>
 
-      <Link href="/" className="btn btn-ghost btn-lg mt-4">
+      <Link href="/" className="btn btn-ghost btn-lg text-primary mt-4">
         ← Back to Home
       </Link>
     </div>

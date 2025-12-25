@@ -23,8 +23,8 @@ export default function DrawPage() {
         </div>
         <div className="divider divider-horizontal"></div>
         <div className="flex gap-2">
-          <button className={`btn btn-circle ${eraseMode ? 'btn-primary' : 'btn-ghost'}`} onClick={() => { setEraseMode(!eraseMode); canvasRef.current?.eraseMode(!eraseMode); }} title="Eraser"><Eraser /></button>
-          <button className="btn btn-circle btn-ghost" onClick={() => canvasRef.current?.undo()} title="Undo"><Undo /></button>
+          <button className={`btn btn-circle ${eraseMode ? 'btn-primary' : 'btn-ghost text-accent'}`} onClick={() => { setEraseMode(!eraseMode); canvasRef.current?.eraseMode(!eraseMode); }} title="Eraser"><Eraser /></button>
+          <button className="btn btn-circle btn-ghost text-accent" onClick={() => canvasRef.current?.undo()} title="Undo"><Undo /></button>
           <button className="btn btn-circle btn-ghost text-error" onClick={() => canvasRef.current?.clearCanvas()} title="Clear"><Trash2 /></button>
           <button className="btn btn-circle btn-ghost text-success" onClick={() => { canvasRef.current?.exportImage("png").then(data => { const link = document.createElement('a'); link.href = data; link.download = 'piper-art.png'; link.click(); }).catch(e => console.error(e)); }} title="Save"><Download /></button>
         </div>

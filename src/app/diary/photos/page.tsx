@@ -247,7 +247,7 @@ export default function DiaryPhotosPage() {
         {photos.length} photo{photos.length !== 1 ? 's' : ''} saved
       </div>
 
-      <Link href="/diary" className="btn btn-ghost btn-lg mt-4">
+      <Link href="/diary" className="btn btn-ghost btn-lg text-primary mt-4">
         ← Back to Private Space
       </Link>
     </div>

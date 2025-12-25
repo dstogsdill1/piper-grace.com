@@ -154,7 +154,7 @@ export default function DiaryLoginPage() {
         </div>
 
         <div className="flex gap-4 mt-8">
-          <Link href="/" className="btn btn-ghost">
+          <Link href="/" className="btn btn-ghost text-primary">
             ← Back to Home
           </Link>
           <button onClick={handleLogout} className="btn btn-outline btn-error gap-2">
@@ -245,7 +245,7 @@ export default function DiaryLoginPage() {
         </div>
       </motion.form>
 
-      <Link href="/" className="btn btn-ghost">
+      <Link href="/" className="btn btn-ghost text-primary">
         ← Back to Home
       </Link>
     </div>
