@@ -14,7 +14,7 @@ export default function RodeoMap({
   className = "",
   height = "h-[500px]",
   showList = true,
-  mapboxToken,
+  mapboxToken: propToken,
 }: RodeoMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -22,9 +22,27 @@ export default function RodeoMap({
   const [selectedEvent, setSelectedEvent] = useState<RodeoEvent | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState(false);
+  const [accessToken, setAccessToken] = useState<string | null>(propToken || null);
 
-  // Try both env var names for flexibility
-  const accessToken = mapboxToken || process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+  // Fetch token from API if not provided as prop
+  useEffect(() => {
+    if (accessToken) return;
+    
+    async function fetchToken() {
+      try {
+        const res = await fetch("/api/mapbox-token");
+        const data = await res.json();
+        if (data.token) {
+          setAccessToken(data.token);
+        } else {
+          setMapError(true);
+        }
+      } catch {
+        setMapError(true);
+      }
+    }
+    fetchToken();
+  }, [accessToken]);
 
   // Fly to a rodeo location
   const flyToRodeo = useCallback((event: RodeoEvent) => {
@@ -42,12 +60,10 @@ export default function RodeoMap({
     });
   }, [mapLoaded]);
 
-  // Initialize Mapbox
+  // Initialize Mapbox when token is available
   useEffect(() => {
-    if (!accessToken) {
-      setMapError(true);
-      return;
-    }
+    // Wait for token to be fetched
+    if (!accessToken) return;
 
     if (map.current || !mapContainer.current) return;
 
