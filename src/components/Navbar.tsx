@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Home, Palette, Puzzle, Smile, Trophy, Heart, User, Lightbulb, Award, Sparkles, Calendar, Camera, Menu } from 'lucide-react';
+import { Home, Palette, Puzzle, Smile, Trophy, Heart, User, Lightbulb, Award, Sparkles, Calendar, Camera, Menu, Lock } from 'lucide-react';
 
 export default function Navbar() {
   return (
@@ -72,6 +72,11 @@ export default function Navbar() {
               <User className="w-5 h-5 text-pink-400" />
             </Link>
           </li>
+          <li>
+            <Link href="/diary" className="tooltip tooltip-bottom" data-tip="Private Diary">
+              <Lock className="w-5 h-5 text-pink-300" />
+            </Link>
+          </li>
         </ul>
         {/* Mobile dropdown */}
         <div className="dropdown dropdown-end lg:hidden">
@@ -91,6 +96,11 @@ export default function Navbar() {
             <li><Link href="/facts"><Lightbulb className="w-4 h-4" /> Horse Facts</Link></li>
             <li><Link href="/achievements"><Award className="w-4 h-4" /> Achievements</Link></li>
             <li><Link href="/profile"><User className="w-4 h-4" /> Profile</Link></li>
+            <li className="border-t border-pink-400/30 mt-2 pt-2">
+              <Link href="/diary" className="text-pink-300">
+                <Lock className="w-4 h-4" /> Private Diary 🔐
+              </Link>
+            </li>
           </ul>
         </div>
       </div>

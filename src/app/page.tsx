@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Palette, Puzzle, Smile, Trophy, Heart, Box, Lightbulb, Award, User, Sparkles, Calendar, Camera } from 'lucide-react';
+import { Palette, Puzzle, Smile, Trophy, Heart, Box, Lightbulb, Award, User, Sparkles, Calendar, Camera, Lock } from 'lucide-react';
 import { CardBody, CardContainer, CardItem } from '@/components/ui/3d-card';
 import { useEffect, useState } from 'react';
 
@@ -116,6 +116,27 @@ export default function Home() {
           bgImage="/images/piper13.jpg"
         />
       </div>
+
+      {/* Private Diary Section */}
+      <motion.div
+        initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.3 }}
+        className="mt-8"
+      >
+        <Link href="/diary">
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            className="card bg-gradient-to-r from-pink-500/20 to-purple-500/20 border-2 border-pink-400/50 shadow-xl hover:shadow-pink-500/30 transition-all px-8 py-4 flex flex-row items-center gap-4"
+          >
+            <Lock className="w-8 h-8 text-pink-400" />
+            <div>
+              <h3 className="font-bold text-lg text-pink-300">Piper's Private Space</h3>
+              <p className="text-sm text-base-content/60">Diary & Photos (Password Protected)</p>
+            </div>
+          </motion.div>
+        </Link>
+      </motion.div>
     </div>
   );
 }
