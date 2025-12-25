@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, User, Sparkles, BookHeart, Image, ArrowRight, LogOut } from 'lucide-react';
+import { Lock, User, Sparkles, BookHeart, Image, ArrowRight, LogOut, Heart, BookOpen } from 'lucide-react';
 import Link from 'next/link';
 
 export default function DiaryLoginPage() {
@@ -13,7 +13,6 @@ export default function DiaryLoginPage() {
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    // Check if already logged in
     const token = localStorage.getItem('piperAuthToken');
     if (token) {
       setIsLoggedIn(true);
@@ -76,7 +75,7 @@ export default function DiaryLoginPage() {
           <p className="text-lg text-accent">Welcome back, Piper Grace! ✨</p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-3xl">
           <motion.div
             initial={{ x: -50, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
@@ -108,6 +107,44 @@ export default function DiaryLoginPage() {
                 <p className="text-base-content/70">Upload & save your favorite pics</p>
                 <div className="card-actions">
                   <span className="btn btn-secondary btn-sm gap-2">
+                    Open <ArrowRight className="w-4 h-4" />
+                  </span>
+                </div>
+              </div>
+            </Link>
+          </motion.div>
+
+          <motion.div
+            initial={{ x: -50, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            <Link href="/diary/horses" className="card bg-gradient-to-br from-amber-500/20 to-pink-500/20 border-2 border-amber-400/30 shadow-xl hover:shadow-amber-500/20 transition-all hover:scale-105">
+              <div className="card-body items-center text-center">
+                <Heart className="w-16 h-16 text-amber-400" />
+                <h2 className="card-title text-2xl text-amber-300">My Horses</h2>
+                <p className="text-base-content/70">Create & collect your dream horses</p>
+                <div className="card-actions">
+                  <span className="btn btn-accent btn-sm gap-2">
+                    Open <ArrowRight className="w-4 h-4" />
+                  </span>
+                </div>
+              </div>
+            </Link>
+          </motion.div>
+
+          <motion.div
+            initial={{ x: 50, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.4 }}
+          >
+            <Link href="/diary/scrapbook" className="card bg-gradient-to-br from-green-500/20 to-teal-500/20 border-2 border-green-400/30 shadow-xl hover:shadow-green-500/20 transition-all hover:scale-105">
+              <div className="card-body items-center text-center">
+                <BookOpen className="w-16 h-16 text-green-400" />
+                <h2 className="card-title text-2xl text-green-300">Scrapbook</h2>
+                <p className="text-base-content/70">Create beautiful memory pages</p>
+                <div className="card-actions">
+                  <span className="btn btn-success btn-sm gap-2">
                     Open <ArrowRight className="w-4 h-4" />
                   </span>
                 </div>
