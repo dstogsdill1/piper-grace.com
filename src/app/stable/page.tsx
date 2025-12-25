@@ -113,7 +113,7 @@ export default function StablePage() {
 function StatBar({ label, value, icon, color }: { label: string, value: number, icon: React.ReactNode, color: string }) {
   return (
     <div className="w-full">
-      <div className="flex justify-between mb-1 font-bold text-lg"><span className="flex items-center gap-2">{icon} {label}</span><span>{Math.round(value)}%</span></div>
+      <div className="flex justify-between mb-1 font-bold text-lg text-white"><span className="flex items-center gap-2">{icon} {label}</span><span>{Math.round(value)}%</span></div>
       <progress className={`progress ${color} w-full h-4 shadow-inner bg-base-300`} value={value} max="100"></progress>
     </div>
   );
