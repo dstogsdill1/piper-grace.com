@@ -117,6 +117,12 @@ export default function Home() {
           description="Your secret diary & more." 
           gradient="from-slate-600 via-purple-600 to-slate-600"
         />
+        <CoolGameCard 
+          href="/rodeo" 
+          title="🤠 Rodeo Finder" 
+          description="Find rodeos across America!" 
+          gradient="from-amber-600 via-orange-500 to-red-600"
+        />
       </div>
     </div>
   );
