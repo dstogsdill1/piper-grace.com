@@ -2,10 +2,18 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Palette, Puzzle, Smile, Trophy, Heart, Box } from 'lucide-react';
+import { Palette, Puzzle, Smile, Trophy, Heart, Box, Lightbulb, Award, User } from 'lucide-react';
 import { CardBody, CardContainer, CardItem } from '@/components/ui/3d-card';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
+  const [playerName, setPlayerName] = useState('Piper');
+
+  useEffect(() => {
+    const savedName = localStorage.getItem('playerName');
+    if (savedName) setPlayerName(savedName);
+  }, []);
+
   return (
     <div className="flex flex-col items-center justify-center gap-10 min-h-[80vh]">
       <motion.div 
@@ -15,7 +23,7 @@ export default function Home() {
         className="text-center relative z-10"
       >
         <h1 className="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary mb-4 drop-shadow-[0_0_15px_rgba(255,0,255,0.5)]">
-          PIPER'S WORLD
+          {playerName.toUpperCase()}'S WORLD
         </h1>
         <p className="text-2xl text-accent font-bold tracking-widest uppercase">
           Level Up Your Farm Life 🐴✨
@@ -64,6 +72,27 @@ export default function Home() {
           description="Test your brain power." 
           icon={<Smile className="w-20 h-20 text-green-400" />}
           bgImage="/images/piper6.jpg"
+        />
+        <CoolGameCard 
+          href="/facts" 
+          title="Horse Facts" 
+          description="Learn cool things about horses!" 
+          icon={<Lightbulb className="w-20 h-20 text-yellow-300" />}
+          bgImage="/images/piper9.jpg"
+        />
+        <CoolGameCard 
+          href="/achievements" 
+          title="Achievements" 
+          description="Collect badges & trophies!" 
+          icon={<Award className="w-20 h-20 text-orange-400" />}
+          bgImage="/images/piper10.jpg"
+        />
+        <CoolGameCard 
+          href="/profile" 
+          title="My Profile" 
+          description="Customize your player profile." 
+          icon={<User className="w-20 h-20 text-pink-400" />}
+          bgImage="/images/piper11.jpg"
         />
       </div>
     </div>
