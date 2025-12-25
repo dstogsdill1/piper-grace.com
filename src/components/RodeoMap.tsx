@@ -7,12 +7,14 @@ interface RodeoMapProps {
   className?: string;
   height?: string;
   showList?: boolean;
+  mapboxToken?: string;
 }
 
 export default function RodeoMap({
   className = "",
   height = "h-[500px]",
   showList = true,
+  mapboxToken,
 }: RodeoMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -21,7 +23,8 @@ export default function RodeoMap({
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState(false);
 
-  const accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
+  // Try both env var names for flexibility
+  const accessToken = mapboxToken || process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
   // Fly to a rodeo location
   const flyToRodeo = useCallback((event: RodeoEvent) => {
