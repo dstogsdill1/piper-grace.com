@@ -1,204 +1,147 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Palette, Puzzle, Smile, Trophy, Heart, Box, Lightbulb, Award, User, Sparkles, Calendar, Camera, Lock } from 'lucide-react';
+import { Palette, Puzzle, Smile, Trophy, Heart, Box, Sparkles, Lock } from 'lucide-react';
 import { CardBody, CardContainer, CardItem } from '@/components/ui/3d-card';
-import { useEffect, useState } from 'react';
 
 export default function Home() {
-  const [playerName, setPlayerName] = useState('Piper');
-
-  useEffect(() => {
-    const savedName = localStorage.getItem('playerName');
-    if (savedName) setPlayerName(savedName);
-  }, []);
-
   return (
     <div className="flex flex-col items-center justify-center gap-10 min-h-[80vh]">
+      {/* Hero Section with Piper's Photo */}
       <motion.div 
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="text-center relative z-10"
+        className="text-center relative z-10 flex flex-col items-center"
       >
-        <h1 className="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary mb-4 drop-shadow-[0_0_15px_rgba(255,0,255,0.5)]">
-          {playerName.toUpperCase()}'S WORLD
+        {/* Piper's Profile Photo */}
+        <motion.div
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+          className="relative mb-6"
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-accent rounded-full blur-xl opacity-60 animate-pulse" />
+          <div className="relative w-40 h-40 md:w-52 md:h-52 rounded-full overflow-hidden border-4 border-primary shadow-[0_0_30px_rgba(255,0,255,0.5)]">
+            <Image
+              src="/images/piper13.jpg"
+              alt="Piper Grace"
+              fill
+              className="object-cover"
+              priority
+            />
+          </div>
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            className="absolute -inset-4 border-2 border-dashed border-secondary/50 rounded-full"
+          />
+          <Sparkles className="absolute -top-2 -right-2 w-8 h-8 text-yellow-400 animate-bounce" />
+          <Sparkles className="absolute -bottom-2 -left-2 w-6 h-6 text-pink-400 animate-bounce delay-150" />
+        </motion.div>
+
+        <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary mb-4 drop-shadow-[0_0_15px_rgba(255,0,255,0.5)]">
+          PIPER'S WORLD
         </h1>
-        <p className="text-2xl text-accent font-bold tracking-widest uppercase">
+        <p className="text-xl md:text-2xl text-accent font-bold tracking-widest uppercase">
           Level Up Your Farm Life 🐴✨
         </p>
       </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full max-w-7xl px-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-7xl px-4">
         <CoolGameCard 
           href="/runner" 
           title="Horse Runner" 
           description="Jump obstacles & collect coins!" 
-          icon={<Trophy className="w-16 h-16 text-yellow-400" />}
-          gradient="from-yellow-500 via-orange-500 to-red-500"
-          emoji="🏃"
+          icon={<Trophy className="w-20 h-20 text-yellow-400" />}
+          bgImage="/images/piper2.jpg"
         />
         <CoolGameCard 
           href="/stable" 
           title="Virtual Stable" 
           description="Feed, groom & love your horse." 
-          icon={<Heart className="w-16 h-16 text-pink-500" />}
-          gradient="from-pink-500 via-rose-500 to-red-400"
-          emoji="🐴"
+          icon={<Heart className="w-20 h-20 text-pink-500" />}
+          bgImage="/images/piper3.jpg"
         />
         <CoolGameCard 
           href="/viewer" 
           title="Horse Creator" 
           description="Design your own custom horse!" 
-          icon={<Box className="w-16 h-16 text-blue-400" />}
-          gradient="from-blue-500 via-cyan-500 to-teal-400"
-          emoji="🎨"
-        />
-        <CoolGameCard 
-          href="/photobooth" 
-          title="Photo Booth" 
-          description="Take awesome horse photos!" 
-          icon={<Camera className="w-16 h-16 text-purple-400" />}
-          gradient="from-purple-500 via-violet-500 to-indigo-500"
-          emoji="📸"
+          icon={<Box className="w-20 h-20 text-blue-400" />}
+          bgImage="/images/piper7.jpg"
         />
         <CoolGameCard 
           href="/draw" 
           title="Art Studio" 
           description="Create pro-level masterpieces." 
-          icon={<Palette className="w-16 h-16 text-cyan-400" />}
-          gradient="from-cyan-400 via-blue-500 to-purple-500"
-          emoji="🖌️"
+          icon={<Palette className="w-20 h-20 text-cyan-400" />}
+          bgImage="/images/piper4.jpg"
         />
         <CoolGameCard 
           href="/puzzle" 
           title="Puzzle Master" 
           description="Solve complex photo challenges." 
-          icon={<Puzzle className="w-16 h-16 text-purple-400" />}
-          gradient="from-violet-500 via-purple-500 to-fuchsia-500"
-          emoji="🧩"
+          icon={<Puzzle className="w-20 h-20 text-purple-400" />}
+          bgImage="/images/piper5.jpg"
         />
         <CoolGameCard 
           href="/memory" 
           title="Memory Matrix" 
           description="Test your brain power." 
-          icon={<Smile className="w-16 h-16 text-green-400" />}
-          gradient="from-green-400 via-emerald-500 to-teal-500"
-          emoji="🧠"
-        />
-        <CoolGameCard 
-          href="/names" 
-          title="Name Generator" 
-          description="Get epic horse name ideas!" 
-          icon={<Sparkles className="w-16 h-16 text-yellow-300" />}
-          gradient="from-yellow-300 via-amber-400 to-orange-400"
-          emoji="✨"
-        />
-        <CoolGameCard 
-          href="/challenges" 
-          title="Daily Challenges" 
-          description="Complete tasks, earn rewards!" 
-          icon={<Calendar className="w-16 h-16 text-orange-400" />}
-          gradient="from-orange-400 via-red-500 to-pink-500"
-          emoji="📅"
-        />
-        <CoolGameCard 
-          href="/facts" 
-          title="Horse Facts" 
-          description="Learn cool things about horses!" 
-          icon={<Lightbulb className="w-16 h-16 text-yellow-300" />}
-          gradient="from-amber-300 via-yellow-400 to-lime-400"
-          emoji="💡"
-        />
-        <CoolGameCard 
-          href="/achievements" 
-          title="Achievements" 
-          description="Collect badges & trophies!" 
-          icon={<Award className="w-16 h-16 text-orange-400" />}
-          gradient="from-amber-500 via-orange-500 to-yellow-500"
-          emoji="🏆"
-        />
-        <CoolGameCard 
-          href="/profile" 
-          title="My Profile" 
-          description="Customize your player profile." 
-          icon={<User className="w-16 h-16 text-pink-400" />}
-          gradient="from-pink-400 via-fuchsia-500 to-purple-500"
-          emoji="👤"
+          icon={<Smile className="w-20 h-20 text-green-400" />}
+          bgImage="/images/piper6.jpg"
         />
       </div>
-
-      {/* Private Diary Section */}
-      <motion.div
-        initial={{ y: 50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.3 }}
-        className="mt-8"
-      >
-        <Link href="/diary">
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            className="card bg-gradient-to-r from-pink-500/20 to-purple-500/20 border-2 border-pink-400/50 shadow-xl hover:shadow-pink-500/30 transition-all px-8 py-4 flex flex-row items-center gap-4"
-          >
-            <Lock className="w-8 h-8 text-pink-400" />
-            <div>
-              <h3 className="font-bold text-lg text-pink-300">Piper's Private Space</h3>
-              <p className="text-sm text-base-content/60">Diary & Photos (Password Protected)</p>
-            </div>
-          </motion.div>
-        </Link>
-      </motion.div>
     </div>
   );
 }
 
-function CoolGameCard({ href, title, description, icon, gradient, emoji }: { 
-  href: string, 
-  title: string, 
-  description: string, 
-  icon: React.ReactNode, 
-  gradient: string,
-  emoji: string 
-}) {
+function CoolGameCard({ href, title, description, icon, bgImage }: { href: string, title: string, description: string, icon: React.ReactNode, bgImage: string }) {
   return (
     <Link href={href} className="w-full">
-      <CardContainer className="inter-var w-full h-full py-2">
-        <CardBody className="bg-base-100 relative group/card dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1] dark:bg-black dark:border-white/[0.2] border-black/[0.1] w-full h-auto rounded-xl p-4 border border-primary/20">
+      <CardContainer className="inter-var w-full h-full py-4">
+        <CardBody className="bg-base-100 relative group/card dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1] dark:bg-black dark:border-white/[0.2] border-black/[0.1] w-full h-auto rounded-xl p-6 border border-primary/20">
           <CardItem
             translateZ="50"
-            className="text-lg font-bold text-neutral-600 dark:text-white"
+            className="text-xl font-bold text-neutral-600 dark:text-white"
           >
             {title}
           </CardItem>
           <CardItem
+            as="p"
             translateZ="60"
-            className="text-neutral-500 text-xs max-w-sm mt-1 dark:text-neutral-300"
+            className="text-neutral-500 text-sm max-w-sm mt-2 dark:text-neutral-300"
           >
             {description}
           </CardItem>
-          <CardItem translateZ="100" className="w-full mt-3">
-            <div className={`relative w-full h-32 rounded-xl overflow-hidden group-hover/card:shadow-xl bg-gradient-to-br ${gradient}`}>
-               <div className="absolute inset-0 bg-black/20 z-10 flex items-center justify-center">
+          <CardItem translateZ="100" className="w-full mt-4">
+            <div className="relative w-full h-48 rounded-xl overflow-hidden group-hover/card:shadow-xl">
+               <div className="absolute inset-0 bg-black/40 z-10 flex items-center justify-center">
                   {icon}
                </div>
-               <div className="absolute bottom-2 right-2 text-4xl opacity-30">
-                 {emoji}
-               </div>
+               <img
+                src={bgImage}
+                className="h-full w-full object-cover group-hover/card:scale-110 transition-transform duration-500"
+                alt="thumbnail"
+              />
             </div>
           </CardItem>
-          <div className="flex justify-between items-center mt-6">
+          <div className="flex justify-between items-center mt-10">
             <CardItem
               translateZ={20}
-              className="px-3 py-1 rounded-xl text-xs font-normal dark:text-white"
+              as="button"
+              className="px-4 py-2 rounded-xl text-xs font-normal dark:text-white"
             >
-              View →
+              View Details →
             </CardItem>
             <CardItem
               translateZ={20}
-              className="px-3 py-1 rounded-xl bg-primary text-primary-content text-xs font-bold"
+              as="button"
+              className="px-4 py-2 rounded-xl bg-primary text-primary-content text-xs font-bold"
             >
-              PLAY
+              PLAY NOW
             </CardItem>
           </div>
         </CardBody>
