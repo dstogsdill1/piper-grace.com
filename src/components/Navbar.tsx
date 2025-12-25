@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Home, Palette, Puzzle, Smile, Trophy, Heart, User, Lightbulb, Award, Sparkles, Calendar, Camera, Menu, Lock } from 'lucide-react';
+import { Home, Palette, Puzzle, Smile, Trophy, Heart, User, Lightbulb, Award, Sparkles, Calendar, Camera, Menu, Lock, Images } from 'lucide-react';
 
 export default function Navbar() {
   return (
@@ -15,6 +15,11 @@ export default function Navbar() {
           <li>
             <Link href="/" className="tooltip tooltip-bottom" data-tip="Home">
               <Home className="w-5 h-5 text-secondary" />
+            </Link>
+          </li>
+          <li>
+            <Link href="/album" className="tooltip tooltip-bottom" data-tip="Photo Album">
+              <Images className="w-5 h-5 text-pink-500" />
             </Link>
           </li>
           <li>
@@ -85,6 +90,7 @@ export default function Navbar() {
           </label>
           <ul tabIndex={0} className="dropdown-content menu p-2 shadow-xl bg-base-100 rounded-box w-52 mt-4 border-2 border-primary/20">
             <li><Link href="/"><Home className="w-4 h-4" /> Home</Link></li>
+            <li><Link href="/album"><Images className="w-4 h-4" /> Photo Album</Link></li>
             <li><Link href="/runner"><Trophy className="w-4 h-4" /> Runner</Link></li>
             <li><Link href="/stable"><Heart className="w-4 h-4" /> Stable</Link></li>
             <li><Link href="/photobooth"><Camera className="w-4 h-4" /> Photo Booth</Link></li>
