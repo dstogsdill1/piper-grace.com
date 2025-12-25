@@ -36,84 +36,96 @@ export default function Home() {
           title="Horse Runner" 
           description="Jump obstacles & collect coins!" 
           icon={<Trophy className="w-16 h-16 text-yellow-400" />}
-          bgImage="/images/piper2.jpg"
+          gradient="from-yellow-500 via-orange-500 to-red-500"
+          emoji="🏃"
         />
         <CoolGameCard 
           href="/stable" 
           title="Virtual Stable" 
           description="Feed, groom & love your horse." 
           icon={<Heart className="w-16 h-16 text-pink-500" />}
-          bgImage="/images/piper3.jpg"
+          gradient="from-pink-500 via-rose-500 to-red-400"
+          emoji="🐴"
         />
         <CoolGameCard 
           href="/viewer" 
           title="Horse Creator" 
           description="Design your own custom horse!" 
           icon={<Box className="w-16 h-16 text-blue-400" />}
-          bgImage="/images/piper7.jpg"
+          gradient="from-blue-500 via-cyan-500 to-teal-400"
+          emoji="🎨"
         />
         <CoolGameCard 
           href="/photobooth" 
           title="Photo Booth" 
           description="Take awesome horse photos!" 
           icon={<Camera className="w-16 h-16 text-purple-400" />}
-          bgImage="/images/piper8.jpg"
+          gradient="from-purple-500 via-violet-500 to-indigo-500"
+          emoji="📸"
         />
         <CoolGameCard 
           href="/draw" 
           title="Art Studio" 
           description="Create pro-level masterpieces." 
           icon={<Palette className="w-16 h-16 text-cyan-400" />}
-          bgImage="/images/piper4.jpg"
+          gradient="from-cyan-400 via-blue-500 to-purple-500"
+          emoji="🖌️"
         />
         <CoolGameCard 
           href="/puzzle" 
           title="Puzzle Master" 
           description="Solve complex photo challenges." 
           icon={<Puzzle className="w-16 h-16 text-purple-400" />}
-          bgImage="/images/piper5.jpg"
+          gradient="from-violet-500 via-purple-500 to-fuchsia-500"
+          emoji="🧩"
         />
         <CoolGameCard 
           href="/memory" 
           title="Memory Matrix" 
           description="Test your brain power." 
           icon={<Smile className="w-16 h-16 text-green-400" />}
-          bgImage="/images/piper6.jpg"
+          gradient="from-green-400 via-emerald-500 to-teal-500"
+          emoji="🧠"
         />
         <CoolGameCard 
           href="/names" 
           title="Name Generator" 
           description="Get epic horse name ideas!" 
           icon={<Sparkles className="w-16 h-16 text-yellow-300" />}
-          bgImage="/images/piper9.jpg"
+          gradient="from-yellow-300 via-amber-400 to-orange-400"
+          emoji="✨"
         />
         <CoolGameCard 
           href="/challenges" 
           title="Daily Challenges" 
           description="Complete tasks, earn rewards!" 
           icon={<Calendar className="w-16 h-16 text-orange-400" />}
-          bgImage="/images/piper10.jpg"
+          gradient="from-orange-400 via-red-500 to-pink-500"
+          emoji="📅"
         />
         <CoolGameCard 
           href="/facts" 
           title="Horse Facts" 
           description="Learn cool things about horses!" 
           icon={<Lightbulb className="w-16 h-16 text-yellow-300" />}
-          bgImage="/images/piper11.jpg"
+          gradient="from-amber-300 via-yellow-400 to-lime-400"
+          emoji="💡"
         />
         <CoolGameCard 
           href="/achievements" 
           title="Achievements" 
           description="Collect badges & trophies!" 
           icon={<Award className="w-16 h-16 text-orange-400" />}
-          bgImage="/images/piper12.jpg"
+          gradient="from-amber-500 via-orange-500 to-yellow-500"
+          emoji="🏆"
         />
         <CoolGameCard 
           href="/profile" 
           title="My Profile" 
           description="Customize your player profile." 
           icon={<User className="w-16 h-16 text-pink-400" />}
-          bgImage="/images/piper13.jpg"
+          gradient="from-pink-400 via-fuchsia-500 to-purple-500"
+          emoji="👤"
         />
       </div>
 
@@ -141,7 +153,14 @@ export default function Home() {
   );
 }
 
-function CoolGameCard({ href, title, description, icon, bgImage }: { href: string, title: string, description: string, icon: React.ReactNode, bgImage: string }) {
+function CoolGameCard({ href, title, description, icon, gradient, emoji }: { 
+  href: string, 
+  title: string, 
+  description: string, 
+  icon: React.ReactNode, 
+  gradient: string,
+  emoji: string 
+}) {
   return (
     <Link href={href} className="w-full">
       <CardContainer className="inter-var w-full h-full py-2">
@@ -153,35 +172,30 @@ function CoolGameCard({ href, title, description, icon, bgImage }: { href: strin
             {title}
           </CardItem>
           <CardItem
-            as="p"
             translateZ="60"
             className="text-neutral-500 text-xs max-w-sm mt-1 dark:text-neutral-300"
           >
             {description}
           </CardItem>
           <CardItem translateZ="100" className="w-full mt-3">
-            <div className="relative w-full h-32 rounded-xl overflow-hidden group-hover/card:shadow-xl">
-               <div className="absolute inset-0 bg-black/40 z-10 flex items-center justify-center">
+            <div className={`relative w-full h-32 rounded-xl overflow-hidden group-hover/card:shadow-xl bg-gradient-to-br ${gradient}`}>
+               <div className="absolute inset-0 bg-black/20 z-10 flex items-center justify-center">
                   {icon}
                </div>
-               <img
-                src={bgImage}
-                className="h-full w-full object-cover group-hover/card:scale-110 transition-transform duration-500"
-                alt="thumbnail"
-              />
+               <div className="absolute bottom-2 right-2 text-4xl opacity-30">
+                 {emoji}
+               </div>
             </div>
           </CardItem>
           <div className="flex justify-between items-center mt-6">
             <CardItem
               translateZ={20}
-              as="button"
               className="px-3 py-1 rounded-xl text-xs font-normal dark:text-white"
             >
               View →
             </CardItem>
             <CardItem
               translateZ={20}
-              as="button"
               className="px-3 py-1 rounded-xl bg-primary text-primary-content text-xs font-bold"
             >
               PLAY
