@@ -37,8 +37,8 @@ export default function PuzzlePage() {
           ))}
         </div>
       </div>
-      <div className="w-full max-w-3xl border-8 border-info/30 rounded-xl overflow-hidden shadow-2xl bg-white p-2">
-        <JigsawPuzzle imageSrc={selectedImage} rows={rows} columns={columns} onSolved={() => setSolved(true)} className="jigsaw-puzzle" />
+      <div className="w-full max-w-3xl border-8 border-info/30 rounded-xl overflow-hidden shadow-2xl bg-white p-2 jigsaw-puzzle">
+        <JigsawPuzzle imageSrc={selectedImage} rows={rows} columns={columns} onSolved={() => setSolved(true)} />
       </div>
       {solved && (
         <div className="alert alert-success shadow-lg max-w-md animate-bounce mt-4">
