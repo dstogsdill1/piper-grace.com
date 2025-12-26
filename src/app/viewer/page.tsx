@@ -9,8 +9,10 @@ import * as THREE from 'three';
 import { 
   Palette, Sparkles, Star, Heart, Crown, Ribbon, 
   Camera, Download, Save, ChevronLeft, ChevronRight,
-  Zap, Mountain, Wind, Award, Shirt, PenTool
+  Zap, Mountain, Wind, Award, Shirt, PenTool, Eye
 } from 'lucide-react';
+import { HorseSVG } from '@/components/HorseSVG';
+import { HorseData } from '@/lib/horse-data';
 
 // ==================== CONFIGURATION DATA ====================
 
@@ -605,6 +607,39 @@ export default function ViewerPage() {
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* 2D Preview - How horse appears in Stable/Runner/PhotoBooth */}
+            <div className="mt-4 p-4 bg-base-100 rounded-2xl shadow-lg border border-base-300">
+              <h3 className="font-bold mb-3 flex items-center gap-2">
+                <Eye className="w-4 h-4" /> 2D Preview
+                <span className="text-xs text-base-content/60 font-normal">(How your horse looks in Stable, Runner, PhotoBooth)</span>
+              </h3>
+              <div className="flex justify-center p-4 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl">
+                <HorseSVG 
+                  horse={{
+                    name: horseName || 'My Horse',
+                    breed,
+                    coatColor,
+                    maneStyle,
+                    maneColor,
+                    marking,
+                    accessories: selectedAccessories,
+                    accessoryColor,
+                    personality,
+                    speed,
+                    jumping,
+                    stamina,
+                    friendliness,
+                  }}
+                  size="lg"
+                  animated={true}
+                  showName={true}
+                />
+              </div>
+              <p className="text-xs text-center text-base-content/50 mt-2">
+                This is how your horse will appear throughout the app!
+              </p>
             </div>
           </motion.div>
 

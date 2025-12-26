@@ -2,8 +2,12 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
+import { useHorse } from '@/hooks/useHorse';
+import { HorseRunnerSVG } from '@/components/HorseSVG';
+import { Sparkles } from 'lucide-react';
 
 export default function RunnerGame() {
+  const { horse, isLoaded } = useHorse();
   const [gameStarted, setGameStarted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [score, setScore] = useState(0);
@@ -13,14 +17,9 @@ export default function RunnerGame() {
   const obstacleRef = useRef<HTMLDivElement>(null);
   const [isJumping, setIsJumping] = useState(false);
 
-  const [horseColor, setHorseColor] = useState('#8B4513');
-
   useEffect(() => {
     const storedHighScore = localStorage.getItem('runnerHighScore');
     if (storedHighScore) setHighScore(parseInt(storedHighScore));
-    
-    const savedColor = localStorage.getItem('myHorseColor');
-    if (savedColor) setHorseColor(savedColor);
   }, []);
 
   useEffect(() => {
@@ -72,24 +71,26 @@ export default function RunnerGame() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [gameStarted, gameOver, isJumping]);
 
+  if (!isLoaded) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
+        <Sparkles className="w-12 h-12 animate-pulse text-primary" />
+        <p className="text-xl">Loading your horse...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col items-center justify-center min-h-[80vh] w-full overflow-hidden relative bg-gradient-to-b from-sky-400 to-sky-200 dark:from-purple-900 dark:to-indigo-900 rounded-xl border-4 border-primary shadow-2xl">
       <div className="absolute top-4 right-4 flex flex-col items-end z-20">
         <div className="text-4xl font-black text-white drop-shadow-md">Score: {Math.floor(score / 10)}</div>
         <div className="text-xl font-bold text-yellow-300 drop-shadow-md">High Score: {Math.floor(highScore / 10)}</div>
+        <div className="text-lg font-medium text-white/80">{horse.name}</div>
       </div>
       <div className="relative w-full h-[300px] bg-transparent overflow-hidden" onClick={jump}>
         <div className="absolute bottom-0 w-full h-[20px] bg-green-600 dark:bg-emerald-800 border-t-4 border-green-800 dark:border-emerald-900 z-10"></div>
-        <div ref={horseRef} className={`absolute left-[50px] w-[60px] h-[60px] transition-all duration-100 ease-linear z-20 ${isJumping ? 'animate-jump' : ''}`} style={{ top: isJumping ? '40px' : '220px' }}>
-          <svg viewBox="0 0 24 24" fill={horseColor} className="w-full h-full drop-shadow-lg transform scale-x-[-1]">
-            <rect x="14" y="2" width="6" height="5" rx="1" />
-            <rect x="12" y="4" width="4" height="8" />
-            <rect x="4" y="8" width="14" height="7" rx="2" />
-            <rect x="6" y="15" width="3" height="7" rx="1" />
-            <rect x="15" y="15" width="3" height="7" rx="1" />
-            <rect x="2" y="9" width="2" height="4" rx="1" />
-            <circle cx="17" cy="4.5" r="0.8" fill="white" />
-          </svg>
+        <div ref={horseRef} className={`absolute left-[50px] w-[80px] h-[80px] transition-all duration-100 ease-linear z-20 ${isJumping ? 'animate-jump' : ''}`} style={{ top: isJumping ? '40px' : '200px' }}>
+          <HorseRunnerSVG horse={horse} jumping={isJumping} />
         </div>
         <div ref={obstacleRef} className={`absolute bottom-[20px] w-[30px] h-[40px] z-20 ${gameStarted ? 'animate-slide' : 'left-[600px]'}`}>
            <div className="text-4xl">🚧</div>

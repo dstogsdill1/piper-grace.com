@@ -1,9 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Camera, Download, Share2, Sparkles, RefreshCw } from 'lucide-react';
+import { Camera, Sparkles } from 'lucide-react';
 import Link from 'next/link';
+import { useHorse } from '@/hooks/useHorse';
+import { HorseSVG } from '@/components/HorseSVG';
+import { getBreedInfo } from '@/lib/horse-data';
 
 const backgrounds = [
   { id: 'sunset', name: 'Sunset Field', gradient: 'from-orange-400 via-pink-500 to-purple-600', emoji: '🌅' },
@@ -12,35 +15,36 @@ const backgrounds = [
   { id: 'night', name: 'Starry Night', gradient: 'from-slate-700 via-purple-800 to-slate-900', emoji: '🌙' },
   { id: 'rainbow', name: 'Rainbow Dreams', gradient: 'from-red-400 via-yellow-400 to-green-400', emoji: '🌈' },
   { id: 'winter', name: 'Winter Wonderland', gradient: 'from-blue-200 via-white to-blue-300', emoji: '❄️' },
+  { id: 'meadow', name: 'Spring Meadow', gradient: 'from-lime-300 via-green-400 to-emerald-500', emoji: '🌻' },
+  { id: 'castle', name: 'Royal Castle', gradient: 'from-purple-500 via-indigo-600 to-violet-700', emoji: '🏰' },
+  { id: 'beach', name: 'Beach Paradise', gradient: 'from-yellow-300 via-amber-400 to-cyan-400', emoji: '🏖️' },
 ];
 
-const horseStyles = [
-  { id: 'cute', name: 'Cute Pony', scale: 1, emoji: '🦄' },
-  { id: 'majestic', name: 'Majestic Stallion', scale: 1.2, emoji: '🐎' },
-  { id: 'baby', name: 'Baby Foal', scale: 0.8, emoji: '🐴' },
-  { id: 'unicorn', name: 'Unicorn', scale: 1.1, emoji: '🦄✨' },
+// Photo effects/poses
+const poses = [
+  { id: 'normal', name: 'Standing', emoji: '🐴' },
+  { id: 'happy', name: 'Happy', emoji: '😊' },
+  { id: 'silly', name: 'Silly', emoji: '🤪' },
+  { id: 'sleepy', name: 'Sleepy', emoji: '😴' },
 ];
 
-const accessories = [
-  { id: 'none', name: 'None', emoji: '' },
-  { id: 'crown', name: 'Crown', emoji: '👑' },
-  { id: 'flowers', name: 'Flower Crown', emoji: '🌸' },
-  { id: 'bow', name: 'Bow', emoji: '🎀' },
-  { id: 'stars', name: 'Stars', emoji: '✨' },
+// Frame styles
+const frames = [
+  { id: 'none', name: 'No Frame', emoji: '🖼️' },
   { id: 'hearts', name: 'Hearts', emoji: '💕' },
+  { id: 'stars', name: 'Stars', emoji: '⭐' },
+  { id: 'flowers', name: 'Flowers', emoji: '🌸' },
+  { id: 'sparkles', name: 'Sparkles', emoji: '✨' },
 ];
 
 export default function PhotoBoothPage() {
+  const { horse, isLoaded } = useHorse();
   const [background, setBackground] = useState(backgrounds[0]);
-  const [horseStyle, setHorseStyle] = useState(horseStyles[0]);
-  const [accessory, setAccessory] = useState(accessories[0]);
-  const [horseColor, setHorseColor] = useState('#c4a35a');
+  const [pose, setPose] = useState(poses[0]);
+  const [frame, setFrame] = useState(frames[0]);
   const [capturing, setCapturing] = useState(false);
 
-  useEffect(() => {
-    const savedColor = localStorage.getItem('myHorseColor');
-    if (savedColor) setHorseColor(savedColor);
-  }, []);
+  const breed = getBreedInfo(horse.breed);
 
   const takePhoto = () => {
     setCapturing(true);
@@ -53,6 +57,15 @@ export default function PhotoBoothPage() {
     }, 500);
   };
 
+  if (!isLoaded) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
+        <Sparkles className="w-12 h-12 animate-pulse text-primary" />
+        <p className="text-xl">Loading your horse...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-[80vh] flex flex-col items-center justify-center gap-8 p-4">
       <motion.h1 
@@ -60,7 +73,7 @@ export default function PhotoBoothPage() {
         animate={{ y: 0, opacity: 1 }}
         className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary"
       >
-        📸 Horse Photo Booth
+        📸 {horse.name}&apos;s Photo Booth
       </motion.h1>
 
       <div className="flex flex-col lg:flex-row gap-8 w-full max-w-6xl">
@@ -82,48 +95,76 @@ export default function PhotoBoothPage() {
               />
             )}
 
-            {/* Horse SVG */}
-            <div className="absolute inset-0 flex items-center justify-center" style={{ transform: `scale(${horseStyle.scale})` }}>
-              <svg viewBox="0 0 200 200" className="w-3/4 h-3/4 drop-shadow-2xl">
-                <g transform="translate(50, 30)">
-                  {/* Body */}
-                  <ellipse cx="50" cy="100" rx="45" ry="35" fill={horseColor} />
-                  {/* Neck */}
-                  <path d="M 75 85 Q 95 60 85 30" stroke={horseColor} strokeWidth="25" fill="none" strokeLinecap="round" />
-                  {/* Head */}
-                  <ellipse cx="90" cy="25" rx="20" ry="15" fill={horseColor} />
-                  {/* Ear */}
-                  <polygon points="85,10 90,0 95,10" fill={horseColor} />
-                  {/* Eye */}
-                  <circle cx="95" cy="22" r="4" fill="#222" />
-                  <circle cx="96" cy="21" r="1.5" fill="white" />
-                  {/* Mane */}
-                  <path d="M 82 10 Q 70 20 75 40 Q 68 50 72 65" stroke="#5a4a3a" strokeWidth="8" fill="none" strokeLinecap="round" />
-                  {/* Legs */}
-                  <rect x="20" y="125" width="10" height="40" rx="4" fill={horseColor} />
-                  <rect x="35" y="130" width="10" height="35" rx="4" fill={horseColor} />
-                  <rect x="55" y="130" width="10" height="35" rx="4" fill={horseColor} />
-                  <rect x="70" y="125" width="10" height="40" rx="4" fill={horseColor} />
-                  {/* Tail */}
-                  <path d="M 5 95 Q -15 110 -10 135" stroke="#5a4a3a" strokeWidth="8" fill="none" strokeLinecap="round" />
-                  {/* Unicorn horn if selected */}
-                  {horseStyle.id === 'unicorn' && (
-                    <polygon points="90,5 92,-15 88,-15" fill="#FFD700" stroke="#FFA500" strokeWidth="1" />
-                  )}
-                </g>
-              </svg>
-            </div>
-
-            {/* Accessory */}
-            {accessory.id !== 'none' && (
-              <div className="absolute top-1/4 left-1/2 transform -translate-x-1/2 text-6xl">
-                {accessory.emoji}
+            {/* Frame decorations */}
+            {frame.id === 'hearts' && (
+              <div className="absolute inset-0 pointer-events-none z-20">
+                <span className="absolute top-4 left-4 text-4xl">💕</span>
+                <span className="absolute top-4 right-4 text-4xl">💕</span>
+                <span className="absolute bottom-4 left-4 text-4xl">💕</span>
+                <span className="absolute bottom-4 right-4 text-4xl">💕</span>
+              </div>
+            )}
+            {frame.id === 'stars' && (
+              <div className="absolute inset-0 pointer-events-none z-20">
+                <span className="absolute top-4 left-4 text-4xl">⭐</span>
+                <span className="absolute top-4 right-4 text-4xl">⭐</span>
+                <span className="absolute bottom-4 left-4 text-4xl">⭐</span>
+                <span className="absolute bottom-4 right-4 text-4xl">⭐</span>
+                <span className="absolute top-1/2 left-2 text-3xl">✨</span>
+                <span className="absolute top-1/2 right-2 text-3xl">✨</span>
+              </div>
+            )}
+            {frame.id === 'flowers' && (
+              <div className="absolute inset-0 pointer-events-none z-20">
+                <span className="absolute top-4 left-4 text-4xl">🌸</span>
+                <span className="absolute top-4 right-4 text-4xl">🌺</span>
+                <span className="absolute bottom-4 left-4 text-4xl">🌷</span>
+                <span className="absolute bottom-4 right-4 text-4xl">🌻</span>
+              </div>
+            )}
+            {frame.id === 'sparkles' && (
+              <div className="absolute inset-0 pointer-events-none z-20">
+                <span className="absolute top-4 left-4 text-4xl animate-pulse">✨</span>
+                <span className="absolute top-4 right-4 text-4xl animate-pulse">✨</span>
+                <span className="absolute bottom-4 left-4 text-4xl animate-pulse">✨</span>
+                <span className="absolute bottom-4 right-4 text-4xl animate-pulse">✨</span>
+                <span className="absolute top-1/4 left-8 text-2xl animate-pulse">💫</span>
+                <span className="absolute bottom-1/4 right-8 text-2xl animate-pulse">💫</span>
               </div>
             )}
 
+            {/* Horse with all customizations */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <HorseSVG horse={horse} size="xl" animated={!capturing} showName={false} />
+            </div>
+
+            {/* Pose effects */}
+            {pose.id === 'happy' && (
+              <div className="absolute top-1/4 left-1/2 transform -translate-x-1/2 text-6xl animate-bounce">
+                😊
+              </div>
+            )}
+            {pose.id === 'silly' && (
+              <div className="absolute top-1/4 left-1/2 transform -translate-x-1/2 text-6xl animate-spin">
+                🤪
+              </div>
+            )}
+            {pose.id === 'sleepy' && (
+              <div className="absolute top-1/4 right-1/4 text-5xl">
+                💤
+              </div>
+            )}
+
+            {/* Horse name badge */}
+            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg z-30">
+              <p className="font-bold text-lg text-gray-800 flex items-center gap-2">
+                <span>{breed.icon}</span> {horse.name}
+              </p>
+            </div>
+
             {/* Decorative sparkles */}
             <Sparkles className="absolute top-4 right-4 w-8 h-8 text-yellow-300 animate-pulse" />
-            <Sparkles className="absolute bottom-4 left-4 w-6 h-6 text-white animate-pulse" />
+            <Sparkles className="absolute bottom-16 left-4 w-6 h-6 text-white animate-pulse" />
           </div>
 
           <div className="flex justify-center gap-4 mt-6">
@@ -144,6 +185,23 @@ export default function PhotoBoothPage() {
           initial={{ x: 50, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
         >
+          {/* Horse info card */}
+          <div className="card bg-base-100 shadow-xl">
+            <div className="card-body">
+              <h3 className="card-title">{breed.icon} Your Horse</h3>
+              <div className="flex items-center gap-4">
+                <div className="flex-1">
+                  <p className="font-bold text-lg">{horse.name}</p>
+                  <p className="text-sm opacity-70">{breed.name}</p>
+                  <p className="text-xs opacity-50 mt-1">{horse.accessories.length} accessories equipped</p>
+                </div>
+                <Link href="/viewer" className="btn btn-primary btn-sm">
+                  Edit Horse
+                </Link>
+              </div>
+            </div>
+          </div>
+
           {/* Background selector */}
           <div className="card bg-base-100 shadow-xl">
             <div className="card-body">
@@ -163,58 +221,40 @@ export default function PhotoBoothPage() {
             </div>
           </div>
 
-          {/* Horse style selector */}
+          {/* Pose selector */}
           <div className="card bg-base-100 shadow-xl">
             <div className="card-body">
-              <h3 className="card-title">🐴 Horse Style</h3>
-              <div className="grid grid-cols-2 gap-2">
-                {horseStyles.map((style) => (
+              <h3 className="card-title">🎭 Pose</h3>
+              <div className="grid grid-cols-4 gap-2">
+                {poses.map((p) => (
                   <button
-                    key={style.id}
-                    onClick={() => setHorseStyle(style)}
-                    className={`btn btn-sm h-auto py-2 flex-col ${horseStyle.id === style.id ? 'btn-secondary' : 'btn-ghost'}`}
+                    key={p.id}
+                    onClick={() => setPose(p)}
+                    className={`btn btn-sm h-auto py-2 flex-col ${pose.id === p.id ? 'btn-secondary' : 'btn-ghost'}`}
                   >
-                    <span className="text-2xl">{style.emoji}</span>
-                    <span className="text-xs">{style.name}</span>
+                    <span className="text-2xl">{p.emoji}</span>
+                    <span className="text-xs">{p.name}</span>
                   </button>
                 ))}
               </div>
             </div>
           </div>
 
-          {/* Accessory selector */}
+          {/* Frame selector */}
           <div className="card bg-base-100 shadow-xl">
             <div className="card-body">
-              <h3 className="card-title">✨ Accessories</h3>
-              <div className="grid grid-cols-3 gap-2">
-                {accessories.map((acc) => (
+              <h3 className="card-title">🖼️ Frame</h3>
+              <div className="grid grid-cols-5 gap-2">
+                {frames.map((f) => (
                   <button
-                    key={acc.id}
-                    onClick={() => setAccessory(acc)}
-                    className={`btn btn-sm h-auto py-2 flex-col ${accessory.id === acc.id ? 'btn-accent' : 'btn-ghost'}`}
+                    key={f.id}
+                    onClick={() => setFrame(f)}
+                    className={`btn btn-sm h-auto py-2 flex-col ${frame.id === f.id ? 'btn-accent' : 'btn-ghost'}`}
                   >
-                    <span className="text-2xl">{acc.emoji || '❌'}</span>
-                    <span className="text-xs">{acc.name}</span>
+                    <span className="text-2xl">{f.emoji}</span>
+                    <span className="text-xs">{f.name}</span>
                   </button>
                 ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Color picker */}
-          <div className="card bg-base-100 shadow-xl">
-            <div className="card-body">
-              <h3 className="card-title">🎨 Horse Color</h3>
-              <div className="flex items-center gap-4">
-                <input 
-                  type="color" 
-                  value={horseColor}
-                  onChange={(e) => setHorseColor(e.target.value)}
-                  className="w-16 h-16 rounded-lg cursor-pointer"
-                />
-                <Link href="/viewer" className="btn btn-outline btn-sm">
-                  Use Horse Creator Color
-                </Link>
               </div>
             </div>
           </div>

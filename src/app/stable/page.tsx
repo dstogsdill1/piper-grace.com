@@ -2,33 +2,34 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Heart, Zap, Utensils, ShowerHead } from 'lucide-react';
+import { Heart, Zap, Utensils, ShowerHead, Sparkles } from 'lucide-react';
 import Confetti from 'react-confetti';
+import { useHorse } from '@/hooks/useHorse';
+import { HorseSVG } from '@/components/HorseSVG';
+import { getBreedInfo } from '@/lib/horse-data';
 
 export default function StablePage() {
+  const { horse, setName, isLoaded } = useHorse();
   const [hunger, setHunger] = useState(100);
   const [energy, setEnergy] = useState(100);
   const [happiness, setHappiness] = useState(100);
   const [cleanliness, setCleanliness] = useState(100);
-  const [horseName, setHorseName] = useState("Spirit");
-  const [horseColor, setHorseColor] = useState('#8B4513');
   const [isEditingName, setIsEditingName] = useState(false);
   const [actionFeedback, setActionFeedback] = useState<string | null>(null);
 
+  // Load care stats from stable state
   useEffect(() => {
     const savedState = localStorage.getItem('stableState');
     if (savedState) {
       const parsed = JSON.parse(savedState);
-      setHunger(parsed.hunger);
-      setEnergy(parsed.energy);
-      setHappiness(parsed.happiness);
-      setCleanliness(parsed.cleanliness);
-      setHorseName(parsed.horseName);
+      if (parsed.hunger !== undefined) setHunger(parsed.hunger);
+      if (parsed.energy !== undefined) setEnergy(parsed.energy);
+      if (parsed.happiness !== undefined) setHappiness(parsed.happiness);
+      if (parsed.cleanliness !== undefined) setCleanliness(parsed.cleanliness);
     }
-    const savedColor = localStorage.getItem('myHorseColor');
-    if (savedColor) setHorseColor(savedColor);
   }, []);
 
+  // Auto-decay stats over time
   useEffect(() => {
     const interval = setInterval(() => {
       setHunger(h => Math.max(0, h - 0.5));
@@ -39,9 +40,14 @@ export default function StablePage() {
     return () => clearInterval(interval);
   }, []);
 
+  // Save care stats (separate from horse identity data)
   useEffect(() => {
-    localStorage.setItem('stableState', JSON.stringify({ hunger, energy, happiness, cleanliness, horseName }));
-  }, [hunger, energy, happiness, cleanliness, horseName]);
+    localStorage.setItem('stableState', JSON.stringify({ hunger, energy, happiness, cleanliness }));
+  }, [hunger, energy, happiness, cleanliness]);
+
+  const handleNameChange = (newName: string) => {
+    setName(newName);
+  };
 
   const handleAction = (type: 'feed' | 'sleep' | 'play' | 'clean') => {
     setActionFeedback(type);
@@ -60,29 +66,53 @@ export default function StablePage() {
     return "😭";
   };
 
+  const breed = getBreedInfo(horse.breed);
+
+  // Don't render until horse data is loaded
+  if (!isLoaded) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
+        <Sparkles className="w-12 h-12 animate-pulse text-primary" />
+        <p className="text-xl">Loading your horse...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col items-center gap-8 w-full max-w-4xl mx-auto">
       {getHorseMood() === "🤩" && <Confetti recycle={false} numberOfPieces={200} />}
       <div className="flex items-center gap-4">
         {isEditingName ? (
-          <input type="text" value={horseName} onChange={(e) => setHorseName(e.target.value)} onBlur={() => setIsEditingName(false)} autoFocus className="input input-bordered input-lg text-4xl font-black text-center w-full max-w-md" />
+          <input 
+            type="text" 
+            value={horse.name} 
+            onChange={(e) => handleNameChange(e.target.value)} 
+            onBlur={() => setIsEditingName(false)} 
+            onKeyDown={(e) => e.key === 'Enter' && setIsEditingName(false)}
+            autoFocus 
+            className="input input-bordered input-lg text-4xl font-black text-center w-full max-w-md" 
+          />
         ) : (
-          <h1 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-violet-500 cursor-pointer hover:scale-105 transition-transform" onClick={() => setIsEditingName(true)}>{horseName} {getHorseMood()}</h1>
+          <h1 
+            className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-violet-500 cursor-pointer hover:scale-105 transition-transform flex items-center gap-3" 
+            onClick={() => setIsEditingName(true)}
+          >
+            <span className="text-4xl">{breed.icon}</span>
+            {horse.name} {getHorseMood()}
+          </h1>
         )}
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
         <div className="relative h-96 bg-base-100 rounded-3xl border-4 border-primary/30 shadow-2xl flex items-center justify-center overflow-hidden group">
           <div className="absolute inset-0 bg-[url('/images/piper3.jpg')] bg-cover bg-center opacity-20 group-hover:opacity-30 transition-opacity"></div>
-          <motion.div animate={{ y: [0, -10, 0], scale: actionFeedback ? 1.2 : 1 }} transition={{ repeat: Infinity, duration: 3 }} className="relative z-10 drop-shadow-2xl">
-            <svg viewBox="0 0 24 24" fill={horseColor} className="w-64 h-64 transform scale-x-[-1]">
-              <rect x="14" y="2" width="6" height="5" rx="1" />
-              <rect x="12" y="4" width="4" height="8" />
-              <rect x="4" y="8" width="14" height="7" rx="2" />
-              <rect x="6" y="15" width="3" height="7" rx="1" />
-              <rect x="15" y="15" width="3" height="7" rx="1" />
-              <rect x="2" y="9" width="2" height="4" rx="1" />
-              <circle cx="17" cy="4.5" r="0.8" fill="white" />
-            </svg>
+          <motion.div 
+            animate={{ 
+              scale: actionFeedback ? 1.1 : 1,
+            }} 
+            transition={{ duration: 0.3 }} 
+            className="relative z-10"
+          >
+            <HorseSVG horse={horse} size="xl" animated={true} />
           </motion.div>
           {actionFeedback && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: -50 }} exit={{ opacity: 0 }} className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-6xl font-bold text-white drop-shadow-[0_0_10px_rgba(0,0,0,1)] z-20">
