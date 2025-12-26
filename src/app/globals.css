@@ -56,6 +56,7 @@
   :root {
     --background: #1a1814;
     --foreground: #f0ebe3;
+    --piper-cream: #2a2520;
   }
   
   [data-theme="piper-ranch"] {
@@ -83,12 +84,34 @@ body {
   box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.15);
 }
 
-/* Clean card styles */
+/* Clean card styles - Light mode */
 .ranch-card {
   background: linear-gradient(145deg, var(--piper-cream) 0%, #fff 100%);
   border: 1px solid rgba(135, 168, 120, 0.2);
   border-radius: 1rem;
   transition: all 0.3s ease;
+  color: #2d2926;
+}
+
+/* Dark mode card styles */
+@media (prefers-color-scheme: dark) {
+  .ranch-card {
+    background: linear-gradient(145deg, #2d2926 0%, #1f1c19 100%);
+    border: 1px solid rgba(135, 168, 120, 0.3);
+    color: #f0ebe3;
+  }
+  
+  .ranch-card h3,
+  .ranch-card .font-semibold,
+  .ranch-card .font-bold {
+    color: #f5f0e8;
+  }
+  
+  .ranch-card p,
+  .ranch-card .text-base-content\/60,
+  .ranch-card .text-base-content\/70 {
+    color: rgba(240, 235, 227, 0.7);
+  }
 }
 
 .ranch-card:hover {
