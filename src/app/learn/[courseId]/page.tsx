@@ -7,7 +7,8 @@ import { motion } from 'framer-motion';
 import { 
   BookOpen, ArrowLeft, CheckCircle2, Circle, Clock,
   Star, Award, ChevronRight, Play, Lock,
-  Heart, Stethoscope, Utensils, Brush, MapPin, Footprints, Shield, Sparkles
+  Heart, Stethoscope, Utensils, Brush, MapPin, Footprints, Shield, Sparkles,
+  LucideIcon
 } from 'lucide-react';
 
 // Course data (same as learn page)
@@ -15,7 +16,7 @@ const courseData: Record<string, {
   id: string;
   title: string;
   description: string;
-  icon: React.ElementType;
+  icon: LucideIcon;
   color: string;
   lessons: { title: string; duration: string; completed: boolean }[];
   difficulty: string;
