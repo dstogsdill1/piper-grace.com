@@ -1,35 +1,38 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Star, Zap, Heart, Paintbrush, Puzzle, Brain, Sparkles } from 'lucide-react';
-import Confetti from 'react-confetti';
+import { motion } from 'framer-motion';
+import { Trophy, Star, Zap, Heart, Puzzle, Sparkles, Lock, CheckCircle2, TrendingUp } from 'lucide-react';
+import { LucideIcon } from 'lucide-react';
 
-interface Achievement {
+interface AchievementDef {
   id: string;
   name: string;
   description: string;
-  icon: React.ReactNode;
+  icon: LucideIcon;
+  color: string;
+  xp: number;
+}
+
+interface Achievement extends AchievementDef {
   unlocked: boolean;
   unlockedAt?: string;
 }
 
-const achievementsList: Omit<Achievement, 'unlocked' | 'unlockedAt'>[] = [
-  { id: 'first_run', name: 'First Gallop', description: 'Play the Horse Runner game', icon: <Zap className="w-8 h-8" /> },
-  { id: 'high_score_50', name: 'Speed Demon', description: 'Score 50+ in Horse Runner', icon: <Trophy className="w-8 h-8" /> },
-  { id: 'high_score_100', name: 'Lightning Hooves', description: 'Score 100+ in Horse Runner', icon: <Star className="w-8 h-8" /> },
-  { id: 'stable_master', name: 'Stable Master', description: 'Keep your horse happy for 5 minutes', icon: <Heart className="w-8 h-8" /> },
-  { id: 'artist', name: 'Creative Spirit', description: 'Save a drawing', icon: <Paintbrush className="w-8 h-8" /> },
-  { id: 'puzzle_easy', name: 'Puzzle Starter', description: 'Complete an easy puzzle', icon: <Puzzle className="w-8 h-8" /> },
-  { id: 'puzzle_hard', name: 'Puzzle Master', description: 'Complete a hard puzzle', icon: <Puzzle className="w-8 h-8" /> },
-  { id: 'memory_win', name: 'Memory Champion', description: 'Win the memory game', icon: <Brain className="w-8 h-8" /> },
-  { id: 'horse_creator', name: 'Horse Designer', description: 'Save a custom horse', icon: <Sparkles className="w-8 h-8" /> },
+const achievementsList: AchievementDef[] = [
+  { id: 'first_run', name: 'First Gallop', description: 'Play the Horse Runner game', icon: Zap, color: 'bg-amber-500', xp: 10 },
+  { id: 'high_score_50', name: 'Speed Demon', description: 'Score 50+ in Horse Runner', icon: Trophy, color: 'bg-yellow-500', xp: 25 },
+  { id: 'high_score_100', name: 'Lightning Hooves', description: 'Score 100+ in Horse Runner', icon: Star, color: 'bg-orange-500', xp: 50 },
+  { id: 'stable_master', name: 'Stable Master', description: 'Keep your horse happy for 5 minutes', icon: Heart, color: 'bg-rose-500', xp: 30 },
+  { id: 'artist', name: 'Creative Spirit', description: 'Save a drawing', icon: Sparkles, color: 'bg-cyan-500', xp: 20 },
+  { id: 'puzzle_easy', name: 'Puzzle Starter', description: 'Complete an easy puzzle', icon: Puzzle, color: 'bg-violet-500', xp: 15 },
+  { id: 'puzzle_hard', name: 'Puzzle Master', description: 'Complete a hard puzzle', icon: Puzzle, color: 'bg-purple-500', xp: 40 },
+  { id: 'memory_win', name: 'Memory Champion', description: 'Win the memory game', icon: Sparkles, color: 'bg-emerald-500', xp: 25 },
+  { id: 'horse_creator', name: 'Horse Designer', description: 'Save a custom horse', icon: Heart, color: 'bg-pink-500', xp: 20 },
 ];
 
 export default function AchievementsPage() {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
-  const [showConfetti, setShowConfetti] = useState(false);
-  const [newUnlock, setNewUnlock] = useState<string | null>(null);
 
   useEffect(() => {
     const savedAchievements = localStorage.getItem('achievements');
@@ -46,64 +49,131 @@ export default function AchievementsPage() {
 
   const unlockedCount = achievements.filter(a => a.unlocked).length;
   const totalCount = achievements.length;
-  const progressPercent = (unlockedCount / totalCount) * 100;
+  const totalXP = achievements.filter(a => a.unlocked).reduce((sum, a) => sum + a.xp, 0);
+  const progressPercent = totalCount > 0 ? (unlockedCount / totalCount) * 100 : 0;
 
   return (
-    <div className="flex flex-col items-center gap-8 w-full max-w-4xl mx-auto">
-      {showConfetti && <Confetti recycle={false} numberOfPieces={300} />}
-      
-      <motion.div 
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        className="text-center"
+    <div className="max-w-5xl mx-auto">
+      {/* Header */}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-8"
       >
-        <h1 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500 mb-2">
-          🏆 ACHIEVEMENTS
-        </h1>
-        <p className="text-xl text-base-content/70">Collect them all!</p>
-      </motion.div>
+        <div className="flex items-center gap-4 mb-4">
+          <div className="p-4 rounded-2xl bg-amber-500/20">
+            <Trophy className="w-10 h-10 text-amber-500" />
+          </div>
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold text-base-content">
+              My Achievements
+            </h1>
+            <p className="text-base-content/60">Collect badges and earn XP!</p>
+          </div>
+        </div>
+      </motion.section>
+
+      {/* Stats Cards */}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="mb-8"
+      >
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="ranch-card p-4 text-center">
+            <Trophy className="w-6 h-6 text-amber-500 mx-auto mb-2" />
+            <div className="text-2xl font-bold">{unlockedCount}</div>
+            <div className="text-xs text-base-content/60">Unlocked</div>
+          </div>
+          <div className="ranch-card p-4 text-center">
+            <Lock className="w-6 h-6 text-base-content/40 mx-auto mb-2" />
+            <div className="text-2xl font-bold">{totalCount - unlockedCount}</div>
+            <div className="text-xs text-base-content/60">Locked</div>
+          </div>
+          <div className="ranch-card p-4 text-center">
+            <Zap className="w-6 h-6 text-yellow-500 mx-auto mb-2" />
+            <div className="text-2xl font-bold">{totalXP}</div>
+            <div className="text-xs text-base-content/60">Total XP</div>
+          </div>
+          <div className="ranch-card p-4 text-center">
+            <TrendingUp className="w-6 h-6 text-emerald-500 mx-auto mb-2" />
+            <div className="text-2xl font-bold">{Math.round(progressPercent)}%</div>
+            <div className="text-xs text-base-content/60">Complete</div>
+          </div>
+        </div>
+      </motion.section>
 
       {/* Progress Bar */}
-      <div className="w-full max-w-md">
-        <div className="flex justify-between mb-2">
-          <span className="font-bold text-lg">{unlockedCount} / {totalCount} Unlocked</span>
-          <span className="font-bold text-lg text-warning">{Math.round(progressPercent)}%</span>
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="mb-8"
+      >
+        <div className="ranch-card p-4">
+          <div className="flex justify-between mb-2 text-sm">
+            <span className="font-medium">{unlockedCount} / {totalCount} Achievements</span>
+            <span className="text-primary font-medium">{Math.round(progressPercent)}%</span>
+          </div>
+          <div className="h-3 bg-base-200 rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-primary rounded-full transition-all duration-500"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
         </div>
-        <progress className="progress progress-warning w-full h-4" value={progressPercent} max="100"></progress>
-      </div>
+      </motion.section>
 
       {/* Achievement Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
-        <AnimatePresence>
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {achievements.map((achievement, index) => (
             <motion.div
               key={achievement.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className={`card bg-base-100 shadow-xl border-2 transition-all ${
-                achievement.unlocked 
-                  ? 'border-warning bg-gradient-to-br from-yellow-900/20 to-orange-900/20' 
-                  : 'border-base-300 opacity-50 grayscale'
-              }`}
+              transition={{ delay: 0.05 * index }}
+              className={`ranch-card p-5 ${!achievement.unlocked ? 'opacity-60' : ''}`}
             >
-              <div className="card-body items-center text-center p-6">
-                <div className={`p-4 rounded-full ${achievement.unlocked ? 'bg-warning/20 text-warning' : 'bg-base-300 text-base-content/30'}`}>
-                  {achievement.icon}
+              <div className="flex items-start gap-4">
+                <div className={`p-3 rounded-xl ${achievement.unlocked ? achievement.color : 'bg-base-300'} text-white relative`}>
+                  <achievement.icon className="w-6 h-6" />
+                  {achievement.unlocked && (
+                    <CheckCircle2 className="w-4 h-4 text-white absolute -top-1 -right-1 bg-emerald-500 rounded-full" />
+                  )}
                 </div>
-                <h2 className="card-title text-lg">{achievement.name}</h2>
-                <p className="text-sm text-base-content/60">{achievement.description}</p>
-                {achievement.unlocked && achievement.unlockedAt && (
-                  <div className="badge badge-warning badge-sm mt-2">✓ Unlocked</div>
-                )}
-                {!achievement.unlocked && (
-                  <div className="badge badge-ghost badge-sm mt-2">🔒 Locked</div>
-                )}
+                
+                <div className="flex-1">
+                  <div className="flex items-start justify-between">
+                    <h3 className="font-semibold text-base-content">{achievement.name}</h3>
+                    <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded-full">
+                      +{achievement.xp} XP
+                    </span>
+                  </div>
+                  <p className="text-sm text-base-content/60 mt-1">{achievement.description}</p>
+                  
+                  {achievement.unlocked ? (
+                    <p className="text-xs text-emerald-500 mt-2 flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" />
+                      Unlocked!
+                    </p>
+                  ) : (
+                    <p className="text-xs text-base-content/40 mt-2 flex items-center gap-1">
+                      <Lock className="w-3 h-3" />
+                      Keep playing to unlock
+                    </p>
+                  )}
+                </div>
               </div>
             </motion.div>
           ))}
-        </AnimatePresence>
-      </div>
+        </div>
+      </motion.section>
     </div>
   );
 }

@@ -4,35 +4,107 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Palette, Puzzle, Smile, Trophy, Heart, Box, Sparkles, Lock, Camera } from 'lucide-react';
-import { CardBody, CardContainer, CardItem } from '@/components/ui/3d-card';
+import { LucideIcon } from 'lucide-react';
+import { 
+  Trophy, Heart, Palette, Puzzle, Sparkles, Lock, Camera, 
+  Images, Map, BookOpen, Award, ArrowRight, Gamepad2, 
+  GraduationCap, TrendingUp, Star
+} from 'lucide-react';
+
+// Types for activity items
+interface ActivityItem {
+  href: string;
+  title: string;
+  desc: string;
+  icon: LucideIcon;
+  color: string;
+  stats?: string;
+}
+
+interface ActivitySection {
+  category: string;
+  items: ActivityItem[];
+}
+
+// Activity categories for the dashboard
+const activities: ActivitySection[] = [
+  {
+    category: 'Featured',
+    items: [
+      { 
+        href: '/runner', 
+        title: 'Horse Runner', 
+        desc: 'Race through obstacles and collect coins',
+        icon: Trophy,
+        color: 'bg-amber-500',
+        stats: 'High Score: --'
+      },
+      { 
+        href: '/stable', 
+        title: 'My Stable', 
+        desc: 'Care for your virtual horse',
+        icon: Heart,
+        color: 'bg-rose-500',
+        stats: 'Spirit needs attention!'
+      },
+    ]
+  },
+  {
+    category: 'Games & Challenges',
+    items: [
+      { href: '/puzzle', title: 'Puzzle Master', desc: 'Solve photo puzzles', icon: Puzzle, color: 'bg-violet-500' },
+      { href: '/memory', title: 'Memory Match', desc: 'Test your memory', icon: Sparkles, color: 'bg-emerald-500' },
+      { href: '/challenges', title: 'Daily Challenges', desc: 'Earn rewards daily', icon: TrendingUp, color: 'bg-orange-500' },
+    ]
+  },
+  {
+    category: 'Create & Express',
+    items: [
+      { href: '/draw', title: 'Art Studio', desc: 'Digital painting canvas', icon: Palette, color: 'bg-cyan-500' },
+      { href: '/viewer', title: 'Horse Creator', desc: 'Design your dream horse', icon: Heart, color: 'bg-pink-500' },
+      { href: '/photobooth', title: 'Photo Booth', desc: 'Fun photo filters', icon: Camera, color: 'bg-purple-500' },
+      { href: '/names', title: 'Name Generator', desc: 'Find the perfect name', icon: Sparkles, color: 'bg-yellow-500' },
+    ]
+  },
+  {
+    category: 'Explore & Learn',
+    items: [
+      { href: '/rodeo', title: 'Rodeo Finder', desc: 'Discover events near you', icon: Map, color: 'bg-red-500' },
+      { href: '/facts', title: 'Horse Facts', desc: 'Learn something new', icon: BookOpen, color: 'bg-indigo-500' },
+      { href: '/learn', title: 'Horse Academy', desc: 'Courses & guides', icon: GraduationCap, color: 'bg-teal-500' },
+    ]
+  },
+];
 
 export default function Home() {
   const [profilePic, setProfilePic] = useState('/images/IMG_3533.JPG');
+  const [greeting, setGreeting] = useState('Welcome back');
 
   useEffect(() => {
     const saved = localStorage.getItem('piper-profile-pic');
     if (saved) setProfilePic(saved);
+    
+    const hour = new Date().getHours();
+    if (hour < 12) setGreeting('Good morning');
+    else if (hour < 17) setGreeting('Good afternoon');
+    else setGreeting('Good evening');
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center gap-10 min-h-[80vh]">
-      {/* Hero Section with Piper's Photo */}
-      <motion.div 
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
+    <div className="max-w-7xl mx-auto">
+      {/* Hero Section */}
+      <motion.section 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="text-center relative z-10 flex flex-col items-center"
+        className="flex flex-col md:flex-row items-center gap-8 mb-12"
       >
-        {/* Piper's Profile Photo */}
-        <motion.div
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.6 }}
-          className="relative mb-6"
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-accent rounded-full blur-xl opacity-60 animate-pulse" />
-          <Link href="/album" className="block relative w-40 h-40 md:w-52 md:h-52 rounded-full overflow-hidden border-4 border-primary shadow-[0_0_30px_rgba(255,0,255,0.5)] hover:scale-105 transition-transform cursor-pointer">
+        {/* Profile Area */}
+        <div className="flex items-center gap-6">
+          <Link 
+            href="/album" 
+            className="relative w-24 h-24 md:w-32 md:h-32 rounded-2xl overflow-hidden border-2 border-primary/30 shadow-lg hover:shadow-xl hover:scale-105 transition-all cursor-pointer group"
+          >
             <Image
               src={profilePic}
               alt="Piper Grace"
@@ -40,137 +112,152 @@ export default function Home() {
               className="object-cover"
               priority
             />
-            <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 hover:opacity-100">
-              <Camera className="w-8 h-8 text-white" />
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+              <Camera className="w-6 h-6 text-white" />
             </div>
           </Link>
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            className="absolute -inset-4 border-2 border-dashed border-secondary/50 rounded-full pointer-events-none"
-          />
-          <Sparkles className="absolute -top-2 -right-2 w-8 h-8 text-yellow-400 animate-bounce" />
-          <Sparkles className="absolute -bottom-2 -left-2 w-6 h-6 text-pink-400 animate-bounce delay-150" />
-        </motion.div>
-
-        <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary mb-4 drop-shadow-[0_0_15px_rgba(255,0,255,0.5)]">
-          PIPER'S WORLD
-        </h1>
-        <p className="text-xl md:text-2xl text-accent font-bold tracking-widest uppercase">
-          Level Up Your Farm Life 🐴✨
-        </p>
-        <p className="text-sm text-base-content/60 mt-2">Click my pic to change it! 📸</p>
-      </motion.div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-7xl px-4">
-        <CoolGameCard 
-          href="/album" 
-          title="📸 Photo Album" 
-          description="All my favorite pictures!" 
-          gradient="from-pink-500 via-rose-500 to-red-400"
-        />
-        <CoolGameCard 
-          href="/runner" 
-          title="🏆 Horse Runner" 
-          description="Jump obstacles & collect coins!" 
-          gradient="from-yellow-500 via-orange-500 to-red-500"
-        />
-        <CoolGameCard 
-          href="/stable" 
-          title="❤️ Virtual Stable" 
-          description="Feed, groom & love your horse." 
-          gradient="from-pink-500 via-fuchsia-500 to-purple-500"
-        />
-        <CoolGameCard 
-          href="/viewer" 
-          title="🎨 Horse Creator" 
-          description="Design your own custom horse!" 
-          gradient="from-blue-500 via-indigo-500 to-purple-500"
-        />
-        <CoolGameCard 
-          href="/draw" 
-          title="🖌️ Art Studio" 
-          description="Create pro-level masterpieces." 
-          gradient="from-cyan-500 via-teal-500 to-emerald-500"
-        />
-        <CoolGameCard 
-          href="/puzzle" 
-          title="🧩 Puzzle Master" 
-          description="Solve complex photo challenges." 
-          gradient="from-purple-500 via-violet-500 to-fuchsia-500"
-        />
-        <CoolGameCard 
-          href="/memory" 
-          title="🧠 Memory Matrix" 
-          description="Test your brain power." 
-          gradient="from-green-500 via-emerald-500 to-teal-500"
-        />
-        <CoolGameCard 
-          href="/names" 
-          title="🐴 Name Generator" 
-          description="Find the perfect horse name!" 
-          gradient="from-amber-500 via-yellow-500 to-lime-500"
-        />
-        <CoolGameCard 
-          href="/diary" 
-          title="🔒 Private Space" 
-          description="Your secret diary & more." 
-          gradient="from-slate-600 via-purple-600 to-slate-600"
-        />
-        <CoolGameCard 
-          href="/rodeo" 
-          title="🤠 Rodeo Finder" 
-          description="Find rodeos across America!" 
-          gradient="from-amber-600 via-orange-500 to-red-600"
-        />
-      </div>
-    </div>
-  );
-}
-
-function CoolGameCard({ href, title, description, gradient }: { 
-  href: string, 
-  title: string, 
-  description: string, 
-  gradient: string
-}) {
-  return (
-    <Link href={href} className="w-full">
-      <CardContainer className="inter-var w-full h-full py-4">
-        <CardBody className="bg-base-100 relative group/card hover:shadow-2xl hover:shadow-primary/20 w-full h-auto rounded-xl p-6 border border-primary/30 hover:border-primary transition-all duration-300">
-          <CardItem
-            translateZ="50"
-            className="text-2xl font-bold text-white"
-          >
-            {title}
-          </CardItem>
-          <CardItem
-            as="p"
-            translateZ="60"
-            className="text-base-content/70 text-sm mt-2"
-          >
-            {description}
-          </CardItem>
-          <CardItem translateZ="100" className="w-full mt-4">
-            <div className={`relative w-full h-32 rounded-xl overflow-hidden bg-gradient-to-br ${gradient} flex items-center justify-center group-hover/card:scale-105 transition-transform duration-500`}>
-              <div className="absolute inset-0 bg-black/10" />
-              <div className="absolute inset-0 overflow-hidden">
-                <div className="absolute w-2 h-2 bg-white/30 rounded-full animate-ping" style={{top: '20%', left: '20%'}} />
-                <div className="absolute w-2 h-2 bg-white/30 rounded-full animate-ping" style={{top: '60%', right: '30%', animationDelay: '0.3s'}} />
-                <div className="absolute w-2 h-2 bg-white/30 rounded-full animate-ping" style={{bottom: '20%', left: '40%', animationDelay: '0.5s'}} />
-              </div>
-            </div>
-          </CardItem>
-          <div className="flex justify-end mt-4">
-            <CardItem
-              translateZ={20}
-              className="px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-secondary text-primary-content text-xs font-bold hover:scale-105 transition-transform"
-            >
-              OPEN →
-            </CardItem>
+          
+          <div>
+            <p className="text-base-content/60 text-sm">{greeting}, Piper! 👋</p>
+            <h1 className="text-3xl md:text-4xl font-bold text-base-content">
+              Welcome to Your Ranch
+            </h1>
+            <p className="text-base-content/70 mt-1">What would you like to do today?</p>
           </div>
-        </CardBody>
-      </CardContainer>
-    </Link>
+        </div>
+
+        {/* Quick Stats */}
+        <div className="flex-1 flex justify-end">
+          <div className="flex gap-3">
+            <Link href="/achievements" className="ranch-card hover-lift p-4 text-center">
+              <Award className="w-6 h-6 text-amber-500 mx-auto mb-1" />
+              <div className="text-2xl font-bold">12</div>
+              <div className="text-xs text-base-content/60">Achievements</div>
+            </Link>
+            <Link href="/profile" className="ranch-card hover-lift p-4 text-center">
+              <Star className="w-6 h-6 text-primary mx-auto mb-1" />
+              <div className="text-2xl font-bold">Level 5</div>
+              <div className="text-xs text-base-content/60">Explorer</div>
+            </Link>
+          </div>
+        </div>
+      </motion.section>
+
+      {/* Private Diary Banner */}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+        className="mb-8"
+      >
+        <Link href="/diary" className="block">
+          <div className="ranch-card hover-lift p-6 bg-gradient-to-r from-primary/10 via-secondary/5 to-primary/10 border-primary/20">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-xl bg-primary/20">
+                  <Lock className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg">My Private Diary</h3>
+                  <p className="text-sm text-base-content/60">Your secret space for thoughts, memories & goals</p>
+                </div>
+              </div>
+              <ArrowRight className="w-5 h-5 text-primary" />
+            </div>
+          </div>
+        </Link>
+      </motion.section>
+
+      {/* Activity Sections */}
+      {activities.map((section, sectionIndex) => (
+        <motion.section
+          key={section.category}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 * (sectionIndex + 2) }}
+          className="mb-10"
+        >
+          <h2 className="text-xl font-semibold mb-4 text-base-content flex items-center gap-2">
+            {section.category}
+          </h2>
+          
+          <div className={`grid gap-4 ${
+            section.category === 'Featured' 
+              ? 'grid-cols-1 md:grid-cols-2' 
+              : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
+          }`}>
+            {section.items.map((item) => (
+              <Link key={item.href} href={item.href}>
+                <div className={`ranch-card hover-lift p-5 h-full ${
+                  section.category === 'Featured' ? 'flex items-start gap-4' : ''
+                }`}>
+                  <div className={`p-3 rounded-xl ${item.color} text-white ${
+                    section.category === 'Featured' ? '' : 'mb-3'
+                  }`}>
+                    <item.icon className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-base-content">{item.title}</h3>
+                    <p className="text-sm text-base-content/60 mt-1">{item.desc}</p>
+                    {item.stats && (
+                      <p className="text-xs text-primary mt-2 font-medium">{item.stats}</p>
+                    )}
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </motion.section>
+      ))}
+
+      {/* Photo Album Quick Access */}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.6 }}
+        className="mb-10"
+      >
+        <Link href="/album">
+          <div className="ranch-card hover-lift p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-xl bg-pink-500 text-white">
+                  <Images className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg">Photo Album</h3>
+                  <p className="text-sm text-base-content/60">View all your favorite memories</p>
+                </div>
+              </div>
+              <ArrowRight className="w-5 h-5 text-base-content/40" />
+            </div>
+          </div>
+        </Link>
+      </motion.section>
+
+      {/* Daily Tip */}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.7 }}
+      >
+        <div className="ranch-card p-6 bg-gradient-to-r from-secondary/10 to-transparent">
+          <div className="flex items-start gap-4">
+            <div className="p-2 rounded-lg bg-secondary/20">
+              <BookOpen className="w-5 h-5 text-secondary" />
+            </div>
+            <div>
+              <h4 className="font-semibold text-base-content">Did You Know?</h4>
+              <p className="text-sm text-base-content/70 mt-1">
+                Horses can sleep both lying down and standing up! They have a special locking mechanism in their legs that lets them rest while staying on their feet.
+              </p>
+              <Link href="/facts" className="text-sm text-primary font-medium mt-2 inline-block hover:underline">
+                Learn more horse facts →
+              </Link>
+            </div>
+          </div>
+        </div>
+      </motion.section>
+    </div>
   );
 }

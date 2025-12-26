@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import { ShootingStarsBackground } from "@/components/ui/shooting-stars";
+import ModernNavbar from "@/components/ModernNavbar";
+import ModernFooter from "@/components/ModernFooter";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Piper Grace's Farm",
-  description: "A fun place for Piper Grace to play and learn!",
+  title: "Piper's Ranch | Your Adventure Awaits",
+  description: "A place for Piper Grace to explore, create, and grow!",
 };
 
 export default function RootLayout({
@@ -26,17 +25,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-theme="synthwave">
+    <html lang="en" data-theme="piper-ranch">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-base-300`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-base-100`}
       >
-        <ShootingStarsBackground>
-          <Navbar />
-          <main className="flex-grow container mx-auto px-4 py-8 relative z-10">
-            {children}
-          </main>
-          <Footer />
-        </ShootingStarsBackground>
+        <ModernNavbar />
+        <main className="flex-grow container mx-auto px-4 py-8">
+          {children}
+        </main>
+        <ModernFooter />
       </body>
     </html>
   );

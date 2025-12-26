@@ -2,8 +2,14 @@
 @plugin "daisyui";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #faf8f5;
+  --foreground: #2d2926;
+  --piper-sage: #87a878;
+  --piper-terracotta: #c9825e;
+  --piper-cream: #f5f0e8;
+  --piper-denim: #5c7a99;
+  --piper-sunset: #e8a87c;
+  --piper-lavender: #b8a9c9;
 }
 
 @theme inline {
@@ -13,15 +19,102 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Custom Piper's Ranch Theme for DaisyUI */
+[data-theme="piper-ranch"] {
+  --p: 142 40% 45%; /* sage green */
+  --pf: 142 40% 35%;
+  --pc: 0 0% 100%;
+  --s: 25 55% 58%; /* terracotta */
+  --sf: 25 55% 48%;
+  --sc: 0 0% 100%;
+  --a: 210 30% 48%; /* denim blue */
+  --af: 210 30% 38%;
+  --ac: 0 0% 100%;
+  --n: 30 10% 20%; /* warm dark */
+  --nf: 30 10% 15%;
+  --nc: 40 20% 95%;
+  --b1: 40 30% 97%; /* cream background */
+  --b2: 40 25% 93%;
+  --b3: 40 20% 88%;
+  --bc: 30 15% 20%;
+  --in: 210 50% 50%;
+  --su: 142 45% 45%;
+  --wa: 35 80% 55%;
+  --er: 0 55% 55%;
+  --rounded-box: 1rem;
+  --rounded-btn: 0.5rem;
+  --rounded-badge: 1.9rem;
+  --animation-btn: 0.2s;
+  --animation-input: 0.2s;
+  --btn-focus-scale: 0.98;
+  --border-btn: 1px;
+  --tab-border: 1px;
+  --tab-radius: 0.5rem;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #1a1814;
+    --foreground: #f0ebe3;
+  }
+  
+  [data-theme="piper-ranch"] {
+    --b1: 30 15% 12%;
+    --b2: 30 12% 16%;
+    --b3: 30 10% 20%;
+    --bc: 40 20% 90%;
+    --n: 30 10% 85%;
+    --nc: 30 15% 15%;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* Subtle animations for mature feel */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.15);
+}
+
+/* Clean card styles */
+.ranch-card {
+  background: linear-gradient(145deg, var(--piper-cream) 0%, #fff 100%);
+  border: 1px solid rgba(135, 168, 120, 0.2);
+  border-radius: 1rem;
+  transition: all 0.3s ease;
+}
+
+.ranch-card:hover {
+  border-color: rgba(135, 168, 120, 0.4);
+  box-shadow: 0 8px 32px -8px rgba(135, 168, 120, 0.25);
+}
+
+/* Progress indicators */
+.progress-sage {
+  --progress-color: var(--piper-sage);
+}
+
+/* Calm scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--piper-cream);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--piper-sage);
+  border-radius: 4px;
+}
+
+/* Focus states for accessibility */
+*:focus-visible {
+  outline: 2px solid var(--piper-denim);
+  outline-offset: 2px;
 }
