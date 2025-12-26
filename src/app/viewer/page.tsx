@@ -1,15 +1,11 @@
 'use client';
 
-import { Suspense, useState, useEffect, useRef, useCallback } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls, Stage, useGLTF, PresentationControls, useAnimations, Html, Environment, Stars, Cloud } from '@react-three/drei';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import * as THREE from 'three';
 import { 
-  Palette, Sparkles, Star, Heart, Crown, Ribbon, 
-  Camera, Download, Save, ChevronLeft, ChevronRight,
-  Zap, Mountain, Wind, Award, Shirt, PenTool, Eye
+  Palette, Sparkles, Heart, 
+  Camera, Save, Zap, Mountain, Shirt, PenTool
 } from 'lucide-react';
 import { HorseSVG } from '@/components/HorseSVG';
 import { HorseData } from '@/lib/horse-data';
@@ -43,7 +39,7 @@ const coatColors = [
   { name: 'Coral', color: '#FF7F50', category: 'fantasy' },
   { name: 'Lavender', color: '#E6E6FA', category: 'fantasy' },
   { name: 'Gold', color: '#FFD700', category: 'fantasy' },
-  { name: 'Rainbow', color: 'linear-gradient(90deg, red, orange, yellow, green, blue, purple)', category: 'fantasy' },
+  { name: 'Rainbow', color: 'rainbow', category: 'fantasy' },
 ];
 
 const maneStyles = [
@@ -119,106 +115,15 @@ const personalities = [
 ];
 
 const backgrounds = [
-  { id: 'studio', name: 'Studio', icon: '📷' },
-  { id: 'meadow', name: 'Meadow', icon: '🌾' },
-  { id: 'sunset', name: 'Sunset', icon: '🌅' },
-  { id: 'night', name: 'Starry Night', icon: '🌙' },
-  { id: 'beach', name: 'Beach', icon: '🏖️' },
-  { id: 'mountains', name: 'Mountains', icon: '🏔️' },
-  { id: 'forest', name: 'Forest', icon: '🌲' },
-  { id: 'rainbow', name: 'Rainbow', icon: '🌈' },
+  { id: 'meadow', name: 'Meadow', icon: '🌾', gradient: 'from-lime-200 via-green-300 to-emerald-400' },
+  { id: 'sunset', name: 'Sunset', icon: '🌅', gradient: 'from-orange-300 via-pink-400 to-purple-500' },
+  { id: 'night', name: 'Starry Night', icon: '🌙', gradient: 'from-slate-800 via-purple-900 to-indigo-950' },
+  { id: 'beach', name: 'Beach', icon: '🏖️', gradient: 'from-yellow-200 via-amber-300 to-cyan-400' },
+  { id: 'mountains', name: 'Mountains', icon: '🏔️', gradient: 'from-blue-300 via-slate-400 to-gray-600' },
+  { id: 'forest', name: 'Forest', icon: '🌲', gradient: 'from-green-400 via-emerald-500 to-teal-700' },
+  { id: 'rainbow', name: 'Rainbow', icon: '🌈', gradient: 'from-red-400 via-yellow-300 to-blue-400' },
+  { id: 'castle', name: 'Castle', icon: '🏰', gradient: 'from-purple-400 via-violet-500 to-indigo-600' },
 ];
-
-// ==================== 3D COMPONENTS ====================
-
-function HorseModel({ scale = 0.02, color, isAnimating }: { scale?: number; color: string; isAnimating: boolean }) {
-  const group = useRef<THREE.Group>(null);
-  const { scene, animations } = useGLTF('/models/horse.glb');
-  const { actions } = useAnimations(animations, group);
-  
-  useEffect(() => {
-    if (actions && Object.keys(actions).length > 0) {
-      const firstAction = Object.values(actions)[0];
-      if (firstAction) {
-        if (isAnimating) {
-          firstAction.play();
-        } else {
-          firstAction.stop();
-        }
-      }
-    }
-  }, [actions, isAnimating]);
-  
-  useEffect(() => {
-    scene.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
-        child.material = new THREE.MeshStandardMaterial({ 
-          color: new THREE.Color(color),
-          roughness: 0.4,
-          metalness: 0.1
-        });
-      }
-    });
-  }, [scene, color]);
-  
-  useFrame((state) => {
-    if (group.current && !isAnimating) {
-      group.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.3) * 0.1;
-    }
-  });
-  
-  return <primitive ref={group} object={scene} scale={scale} position={[0, -1, 0]} />;
-}
-
-function BackgroundEnvironment({ type }: { type: string }) {
-  switch (type) {
-    case 'night':
-      return <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />;
-    case 'sunset':
-      return <Environment preset="sunset" />;
-    case 'forest':
-      return <Environment preset="forest" />;
-    case 'meadow':
-      return (
-        <>
-          <Environment preset="park" />
-          <Cloud position={[-4, 5, -10]} speed={0.2} opacity={0.4} />
-          <Cloud position={[4, 4, -8]} speed={0.1} opacity={0.3} />
-        </>
-      );
-    default:
-      return <Environment preset="city" />;
-  }
-}
-
-function LoadingFallback() {
-  return (
-    <Html center>
-      <div className="flex flex-col items-center gap-2">
-        <span className="loading loading-spinner loading-lg text-primary"></span>
-        <span className="text-sm text-base-content/60">Loading your horse...</span>
-      </div>
-    </Html>
-  );
-}
-
-// Screenshot component
-function Screenshot({ onCapture }: { onCapture: (dataUrl: string) => void }) {
-  const { gl, scene, camera } = useThree();
-  
-  useEffect(() => {
-    const captureHandler = () => {
-      gl.render(scene, camera);
-      const dataUrl = gl.domElement.toDataURL('image/png');
-      onCapture(dataUrl);
-    };
-    
-    window.addEventListener('capture-screenshot', captureHandler);
-    return () => window.removeEventListener('capture-screenshot', captureHandler);
-  }, [gl, scene, camera, onCapture]);
-  
-  return null;
-}
 
 // ==================== UI COMPONENTS ====================
 
@@ -265,7 +170,10 @@ function ColorGrid({ colors, selected, onSelect, showCustom = true }: {
             className={`w-10 h-10 rounded-full border-3 transition-all ${
               selected === c.color ? 'border-white ring-2 ring-primary shadow-lg scale-110' : 'border-base-300'
             }`}
-            style={{ backgroundColor: c.color.includes('gradient') ? undefined : c.color, background: c.color.includes('gradient') ? c.color : undefined }}
+            style={{ 
+              backgroundColor: c.color === 'rainbow' ? undefined : c.color, 
+              background: c.color === 'rainbow' ? 'linear-gradient(90deg, red, orange, yellow, green, blue, purple)' : undefined 
+            }}
             title={c.name}
           />
         ))}
@@ -275,9 +183,10 @@ function ColorGrid({ colors, selected, onSelect, showCustom = true }: {
           <span className="text-sm text-base-content/70">Custom:</span>
           <input 
             type="color" 
-            value={selected}
+            value={selected === 'rainbow' ? '#ff69b4' : selected}
             onChange={(e) => onSelect(e.target.value)}
             className="w-8 h-8 rounded cursor-pointer border-2 border-base-300"
+            title="Pick custom color"
           />
         </div>
       )}
@@ -306,12 +215,192 @@ function StatSlider({ label, value, onChange, icon, color }: {
         max="10"
         value={value}
         onChange={(e) => onChange(parseInt(e.target.value))}
-        className="range range-sm"
-        style={{ '--range-shdw': color } as React.CSSProperties}
+        className="range range-sm range-primary"
+        title={`${label}: ${value}`}
       />
       <div className="flex justify-between text-xs text-base-content/50">
         <span>1</span>
         <span>10</span>
+      </div>
+    </div>
+  );
+}
+
+// Background component with animations
+function AnimatedBackground({ type, children }: { type: string; children: React.ReactNode }) {
+  const bg = backgrounds.find(b => b.id === type) || backgrounds[0];
+  
+  return (
+    <div className={`relative w-full h-full rounded-3xl overflow-hidden bg-gradient-to-br ${bg.gradient}`}>
+      {/* Animated elements based on background type */}
+      {type === 'night' && (
+        <>
+          <div className="absolute inset-0 overflow-hidden">
+            {[...Array(50)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute w-1 h-1 bg-white rounded-full"
+                style={{ 
+                  left: `${Math.random() * 100}%`, 
+                  top: `${Math.random() * 60}%`,
+                  opacity: Math.random() * 0.8 + 0.2
+                }}
+                animate={{ opacity: [0.2, 1, 0.2] }}
+                transition={{ repeat: Infinity, duration: Math.random() * 3 + 1 }}
+              />
+            ))}
+          </div>
+          <motion.div 
+            className="absolute top-8 right-12 text-6xl"
+            animate={{ rotate: [0, 5, 0] }}
+            transition={{ repeat: Infinity, duration: 5 }}
+          >
+            🌙
+          </motion.div>
+        </>
+      )}
+      
+      {type === 'meadow' && (
+        <>
+          <div className="absolute bottom-0 left-0 right-0 h-20 bg-green-600/50" />
+          {[...Array(8)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute text-3xl"
+              style={{ 
+                left: `${i * 12 + 5}%`, 
+                bottom: '10px'
+              }}
+              animate={{ rotate: [-5, 5, -5] }}
+              transition={{ repeat: Infinity, duration: 2, delay: i * 0.2 }}
+            >
+              🌸
+            </motion.div>
+          ))}
+          <motion.div 
+            className="absolute top-8 right-8 text-5xl"
+            animate={{ y: [0, -10, 0] }}
+            transition={{ repeat: Infinity, duration: 3 }}
+          >
+            ☀️
+          </motion.div>
+        </>
+      )}
+      
+      {type === 'sunset' && (
+        <>
+          <motion.div 
+            className="absolute bottom-20 left-1/2 transform -translate-x-1/2 text-8xl"
+            animate={{ y: [0, 5, 0] }}
+            transition={{ repeat: Infinity, duration: 4 }}
+          >
+            🌅
+          </motion.div>
+          <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-orange-900/40 to-transparent" />
+        </>
+      )}
+      
+      {type === 'beach' && (
+        <>
+          <div className="absolute bottom-0 left-0 right-0 h-16 bg-amber-300/60" />
+          <motion.div
+            className="absolute bottom-12 left-0 right-0 h-8 bg-cyan-400/40"
+            animate={{ x: [-10, 10, -10] }}
+            transition={{ repeat: Infinity, duration: 3 }}
+          />
+          <div className="absolute bottom-4 left-8 text-4xl">🐚</div>
+          <div className="absolute bottom-4 right-12 text-4xl">🦀</div>
+        </>
+      )}
+      
+      {type === 'forest' && (
+        <>
+          <div className="absolute bottom-0 left-0 text-6xl">🌲</div>
+          <div className="absolute bottom-0 left-16 text-8xl">🌲</div>
+          <div className="absolute bottom-0 right-16 text-8xl">🌲</div>
+          <div className="absolute bottom-0 right-0 text-6xl">🌲</div>
+          <motion.div
+            className="absolute top-12 left-1/4 text-2xl"
+            animate={{ x: [0, 100, 200], y: [0, -20, 0] }}
+            transition={{ repeat: Infinity, duration: 8 }}
+          >
+            🦋
+          </motion.div>
+        </>
+      )}
+      
+      {type === 'mountains' && (
+        <>
+          <div className="absolute bottom-0 left-0 right-0 text-center">
+            <span className="text-8xl">🏔️</span>
+            <span className="text-6xl">⛰️</span>
+            <span className="text-8xl">🏔️</span>
+          </div>
+          <motion.div
+            className="absolute top-8 left-8 text-4xl"
+            animate={{ x: [0, 200], opacity: [0.8, 0] }}
+            transition={{ repeat: Infinity, duration: 15 }}
+          >
+            ☁️
+          </motion.div>
+        </>
+      )}
+      
+      {type === 'rainbow' && (
+        <>
+          <motion.div
+            className="absolute top-4 left-1/4 right-1/4 text-center text-6xl"
+            animate={{ scale: [1, 1.1, 1] }}
+            transition={{ repeat: Infinity, duration: 3 }}
+          >
+            🌈
+          </motion.div>
+          {[...Array(5)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute text-3xl"
+              style={{ 
+                left: `${20 + i * 15}%`, 
+                top: `${30 + Math.random() * 20}%`
+              }}
+              animate={{ y: [0, -15, 0], rotate: [0, 360] }}
+              transition={{ repeat: Infinity, duration: 2 + i * 0.5 }}
+            >
+              ✨
+            </motion.div>
+          ))}
+        </>
+      )}
+      
+      {type === 'castle' && (
+        <>
+          <motion.div
+            className="absolute bottom-0 left-1/2 transform -translate-x-1/2 text-8xl"
+            animate={{ y: [0, -5, 0] }}
+            transition={{ repeat: Infinity, duration: 4 }}
+          >
+            🏰
+          </motion.div>
+          <motion.div
+            className="absolute top-8 left-8 text-4xl"
+            animate={{ scale: [1, 1.2, 1] }}
+            transition={{ repeat: Infinity, duration: 2 }}
+          >
+            ✨
+          </motion.div>
+          <motion.div
+            className="absolute top-12 right-8 text-4xl"
+            animate={{ scale: [1.2, 1, 1.2] }}
+            transition={{ repeat: Infinity, duration: 2 }}
+          >
+            ✨
+          </motion.div>
+        </>
+      )}
+      
+      {/* Horse container */}
+      <div className="relative z-10 h-full flex items-center justify-center">
+        {children}
       </div>
     </div>
   );
@@ -330,7 +419,7 @@ export default function ViewerPage() {
   const [selectedAccessories, setSelectedAccessories] = useState<string[]>([]);
   const [accessoryColor, setAccessoryColor] = useState('#8B4513');
   const [personality, setPersonality] = useState('playful');
-  const [background, setBackground] = useState('studio');
+  const [background, setBackground] = useState('meadow');
   
   // Stats
   const [speed, setSpeed] = useState(5);
@@ -340,11 +429,9 @@ export default function ViewerPage() {
   
   // UI state
   const [activeTab, setActiveTab] = useState('basics');
-  const [isAnimating, setIsAnimating] = useState(true);
   const [saved, setSaved] = useState(false);
   const [showGallery, setShowGallery] = useState(false);
-  const [savedHorses, setSavedHorses] = useState<any[]>([]);
-  const [screenshot, setScreenshot] = useState<string | null>(null);
+  const [savedHorses, setSavedHorses] = useState<HorseData[]>([]);
 
   // Load saved data
   useEffect(() => {
@@ -372,32 +459,44 @@ export default function ViewerPage() {
     }
   }, []);
 
+  // Auto-add horn for unicorn, wings for pegasus
+  useEffect(() => {
+    if (breed === 'unicorn' && !selectedAccessories.includes('horn')) {
+      setSelectedAccessories(prev => [...prev.filter(a => a !== 'wings'), 'horn']);
+    } else if (breed === 'pegasus' && !selectedAccessories.includes('wings')) {
+      setSelectedAccessories(prev => [...prev.filter(a => a !== 'horn'), 'wings']);
+    }
+  }, [breed]);
+
   const toggleAccessory = (id: string) => {
+    if (id === 'none') {
+      setSelectedAccessories([]);
+      return;
+    }
     setSelectedAccessories(prev => 
       prev.includes(id) ? prev.filter(a => a !== id) : [...prev, id]
     );
   };
 
+  const currentHorseData: HorseData = {
+    name: horseName || 'Spirit',
+    breed,
+    coatColor,
+    maneStyle,
+    maneColor,
+    marking,
+    accessories: selectedAccessories,
+    accessoryColor,
+    personality,
+    speed,
+    jumping,
+    stamina,
+    friendliness,
+  };
+
   const saveHorse = () => {
-    const horseData = {
-      name: horseName,
-      breed,
-      coatColor,
-      maneStyle,
-      maneColor,
-      marking,
-      accessories: selectedAccessories,
-      accessoryColor,
-      personality,
-      speed,
-      jumping,
-      stamina,
-      friendliness,
-      savedAt: new Date().toISOString(),
-    };
-    
-    localStorage.setItem('myHorseData', JSON.stringify(horseData));
-    localStorage.setItem('myHorseColor', coatColor); // For backward compatibility
+    localStorage.setItem('myHorseData', JSON.stringify(currentHorseData));
+    localStorage.setItem('myHorseColor', coatColor);
     localStorage.setItem('myHorseName', horseName);
     
     setSaved(true);
@@ -405,30 +504,17 @@ export default function ViewerPage() {
   };
 
   const saveToGallery = () => {
-    const horseData = {
-      id: Date.now(),
-      name: horseName || 'Unnamed Horse',
-      breed,
-      coatColor,
-      maneStyle,
-      maneColor,
-      marking,
-      accessories: selectedAccessories,
-      accessoryColor,
-      personality,
-      speed,
-      jumping,
-      stamina,
-      friendliness,
+    const horseWithId = {
+      ...currentHorseData,
       savedAt: new Date().toISOString(),
     };
     
-    const newGallery = [...savedHorses, horseData];
+    const newGallery = [...savedHorses, horseWithId];
     localStorage.setItem('horseGallery', JSON.stringify(newGallery));
     setSavedHorses(newGallery);
   };
 
-  const loadFromGallery = (horse: any) => {
+  const loadFromGallery = (horse: HorseData) => {
     setHorseName(horse.name);
     setBreed(horse.breed);
     setCoatColor(horse.coatColor);
@@ -445,28 +531,10 @@ export default function ViewerPage() {
     setShowGallery(false);
   };
 
-  const deleteFromGallery = (id: number) => {
-    const newGallery = savedHorses.filter(h => h.id !== id);
+  const deleteFromGallery = (index: number) => {
+    const newGallery = savedHorses.filter((_, i) => i !== index);
     localStorage.setItem('horseGallery', JSON.stringify(newGallery));
     setSavedHorses(newGallery);
-  };
-
-  const takeScreenshot = () => {
-    window.dispatchEvent(new Event('capture-screenshot'));
-  };
-
-  const handleScreenshot = useCallback((dataUrl: string) => {
-    setScreenshot(dataUrl);
-  }, []);
-
-  const downloadScreenshot = () => {
-    if (screenshot) {
-      const link = document.createElement('a');
-      link.download = `${horseName || 'my-horse'}.png`;
-      link.href = screenshot;
-      link.click();
-      setScreenshot(null);
-    }
   };
 
   const randomizeHorse = () => {
@@ -523,7 +591,7 @@ export default function ViewerPage() {
 
       <div className="container mx-auto px-4 pb-8">
         <div className="flex flex-col xl:flex-row gap-6">
-          {/* Left Panel - 3D Viewer */}
+          {/* Left Panel - Horse Display */}
           <motion.div 
             className="xl:flex-1"
             initial={{ opacity: 0, x: -20 }}
@@ -556,39 +624,22 @@ export default function ViewerPage() {
               </div>
             </div>
 
-            {/* 3D Canvas */}
-            <div className="relative h-[400px] md:h-[500px] rounded-3xl overflow-hidden border-4 border-primary/30 shadow-2xl bg-gradient-to-br from-base-200 to-base-300">
-              <Canvas shadows camera={{ position: [0, 0, 5], fov: 50 }}>
-                <ambientLight intensity={0.5} />
-                <directionalLight position={[10, 10, 5]} intensity={1} castShadow />
-                <Suspense fallback={<LoadingFallback />}>
-                  <BackgroundEnvironment type={background} />
-                  <PresentationControls speed={1.5} global zoom={0.7} polar={[-0.1, Math.PI / 4]}>
-                    <Stage environment={null} intensity={0.6}>
-                      <HorseModel scale={0.02} color={coatColor} isAnimating={isAnimating} />
-                    </Stage>
-                  </PresentationControls>
-                </Suspense>
-                <OrbitControls enableZoom={true} enablePan={false} />
-                <Screenshot onCapture={handleScreenshot} />
-              </Canvas>
-
-              {/* Overlay Controls */}
-              <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center">
-                <div className="flex gap-2">
-                  <button 
-                    onClick={() => setIsAnimating(!isAnimating)}
-                    className={`btn btn-sm ${isAnimating ? 'btn-primary' : 'btn-ghost'}`}
-                  >
-                    {isAnimating ? '⏸️ Pause' : '▶️ Play'}
-                  </button>
-                </div>
-                <div className="flex gap-2">
-                  <button onClick={takeScreenshot} className="btn btn-sm btn-secondary">
-                    <Camera className="w-4 h-4" /> Photo
-                  </button>
-                </div>
-              </div>
+            {/* Main Horse Display with Animated Background */}
+            <div className="relative h-[400px] md:h-[500px] rounded-3xl overflow-hidden border-4 border-primary/30 shadow-2xl">
+              <AnimatedBackground type={background}>
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ type: "spring", stiffness: 200 }}
+                >
+                  <HorseSVG 
+                    horse={currentHorseData}
+                    size="xl"
+                    animated={true}
+                    showName={true}
+                  />
+                </motion.div>
+              </AnimatedBackground>
             </div>
 
             {/* Background Selection */}
@@ -609,38 +660,29 @@ export default function ViewerPage() {
               </div>
             </div>
 
-            {/* 2D Preview - How horse appears in Stable/Runner/PhotoBooth */}
-            <div className="mt-4 p-4 bg-base-100 rounded-2xl shadow-lg border border-base-300">
-              <h3 className="font-bold mb-3 flex items-center gap-2">
-                <Eye className="w-4 h-4" /> 2D Preview
-                <span className="text-xs text-base-content/60 font-normal">(How your horse looks in Stable, Runner, PhotoBooth)</span>
-              </h3>
-              <div className="flex justify-center p-4 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl">
-                <HorseSVG 
-                  horse={{
-                    name: horseName || 'My Horse',
-                    breed,
-                    coatColor,
-                    maneStyle,
-                    maneColor,
-                    marking,
-                    accessories: selectedAccessories,
-                    accessoryColor,
-                    personality,
-                    speed,
-                    jumping,
-                    stamina,
-                    friendliness,
-                  }}
-                  size="lg"
-                  animated={true}
-                  showName={true}
-                />
-              </div>
-              <p className="text-xs text-center text-base-content/50 mt-2">
-                This is how your horse will appear throughout the app!
-              </p>
+            {/* Save Actions */}
+            <div className="mt-4 flex flex-wrap gap-3">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={saveHorse}
+                className={`btn btn-primary flex-1 ${saved ? 'btn-success' : ''}`}
+              >
+                <Save className="w-4 h-4" />
+                {saved ? '✓ Saved!' : 'Save as Main Horse'}
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={saveToGallery}
+                className="btn btn-secondary"
+              >
+                <Camera className="w-4 h-4" /> Add to Gallery
+              </motion.button>
             </div>
+            <p className="text-center text-sm text-base-content/60 mt-2">
+              Your main horse appears in Horse Runner, Stable, and Photo Booth!
+            </p>
           </motion.div>
 
           {/* Right Panel - Customization */}
@@ -678,7 +720,7 @@ export default function ViewerPage() {
             </div>
 
             {/* Tab Content */}
-            <div className="bg-base-100 rounded-2xl shadow-lg border border-base-300 p-4 min-h-[400px]">
+            <div className="bg-base-100 rounded-2xl shadow-lg border border-base-300 p-4 min-h-[400px] overflow-y-auto max-h-[600px]">
               <AnimatePresence mode="wait">
                 {/* Basics Tab */}
                 {activeTab === 'basics' && (
@@ -746,18 +788,18 @@ export default function ViewerPage() {
                     <div>
                       <h3 className="font-bold mb-3">💇 Mane Style</h3>
                       <div className="grid grid-cols-3 gap-2">
-                        {maneStyles.map((style) => (
+                        {maneStyles.map((m) => (
                           <button
-                            key={style.id}
-                            onClick={() => setManeStyle(style.id)}
+                            key={m.id}
+                            onClick={() => setManeStyle(m.id)}
                             className={`p-3 rounded-xl text-center transition-all ${
-                              maneStyle === style.id 
+                              maneStyle === m.id 
                                 ? 'bg-secondary text-secondary-content shadow-lg' 
                                 : 'bg-base-200 hover:bg-base-300'
                             }`}
                           >
-                            <span className="text-2xl">{style.icon}</span>
-                            <p className="text-xs mt-1">{style.name}</p>
+                            <span className="text-2xl">{m.icon}</span>
+                            <p className="text-xs font-medium mt-1">{m.name}</p>
                           </button>
                         ))}
                       </div>
@@ -765,7 +807,7 @@ export default function ViewerPage() {
 
                     {/* Mane Color */}
                     <div>
-                      <h3 className="font-bold mb-3">🌈 Mane Color</h3>
+                      <h3 className="font-bold mb-3">🎨 Mane Color</h3>
                       <ColorGrid 
                         colors={maneColors} 
                         selected={maneColor} 
@@ -786,10 +828,9 @@ export default function ViewerPage() {
                                 ? 'bg-accent text-accent-content shadow-lg' 
                                 : 'bg-base-200 hover:bg-base-300'
                             }`}
-                            title={m.description}
                           >
-                            <span className="text-lg">{m.icon}</span>
-                            <p className="text-xs mt-1">{m.name}</p>
+                            <span className="text-xl">{m.icon}</span>
+                            <p className="text-xs font-medium mt-1">{m.name}</p>
                           </button>
                         ))}
                       </div>
@@ -806,37 +847,34 @@ export default function ViewerPage() {
                     exit={{ opacity: 0, y: -10 }}
                     className="space-y-6"
                   >
+                    {/* Accessories */}
                     <div>
-                      <h3 className="font-bold mb-3">🎠 Accessories</h3>
-                      <p className="text-sm text-base-content/60 mb-3">Select multiple items!</p>
-                      
-                      {['tack', 'head', 'decoration', 'blanket', 'legs', 'fantasy'].map((category) => (
-                        <div key={category} className="mb-4">
-                          <p className="text-xs text-base-content/60 uppercase font-semibold mb-2">
-                            {category.charAt(0).toUpperCase() + category.slice(1)}
-                          </p>
-                          <div className="flex flex-wrap gap-2">
-                            {accessories.filter(a => a.category === category).map((acc) => (
-                              <button
-                                key={acc.id}
-                                onClick={() => toggleAccessory(acc.id)}
-                                className={`px-3 py-2 rounded-xl text-sm transition-all ${
-                                  selectedAccessories.includes(acc.id)
-                                    ? 'bg-primary text-primary-content shadow-lg' 
-                                    : 'bg-base-200 hover:bg-base-300'
-                                }`}
-                              >
-                                {acc.icon} {acc.name}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
+                      <h3 className="font-bold mb-3">🎒 Accessories</h3>
+                      <p className="text-xs text-base-content/60 mb-3">Select multiple accessories!</p>
+                      <div className="grid grid-cols-3 gap-2">
+                        {accessories.map((a) => (
+                          <button
+                            key={a.id}
+                            onClick={() => toggleAccessory(a.id)}
+                            className={`p-2 rounded-xl text-center transition-all ${
+                              selectedAccessories.includes(a.id) || (a.id === 'none' && selectedAccessories.length === 0)
+                                ? 'bg-primary text-primary-content shadow-lg ring-2 ring-primary ring-offset-2' 
+                                : 'bg-base-200 hover:bg-base-300'
+                            }`}
+                          >
+                            <span className="text-xl">{a.icon}</span>
+                            <p className="text-xs font-medium mt-1">{a.name}</p>
+                          </button>
+                        ))}
+                      </div>
+                      <p className="text-sm text-primary mt-3">
+                        Selected: {selectedAccessories.length === 0 ? 'None' : selectedAccessories.map(id => accessories.find(a => a.id === id)?.name).join(', ')}
+                      </p>
                     </div>
 
                     {/* Accessory Color */}
                     <div>
-                      <h3 className="font-bold mb-3">🎨 Gear Color</h3>
+                      <h3 className="font-bold mb-3">🎨 Accessory Color</h3>
                       <ColorGrid 
                         colors={accessoryColors} 
                         selected={accessoryColor} 
@@ -853,41 +891,39 @@ export default function ViewerPage() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="space-y-6"
+                    className="space-y-4"
                   >
-                    <div>
-                      <h3 className="font-bold mb-3">💝 Personality</h3>
-                      <div className="grid grid-cols-2 gap-3">
-                        {personalities.map((p) => (
-                          <button
-                            key={p.id}
-                            onClick={() => setPersonality(p.id)}
-                            className={`p-4 rounded-xl text-left transition-all ${
-                              personality === p.id 
-                                ? 'bg-gradient-to-br from-primary to-secondary text-primary-content shadow-lg' 
-                                : 'bg-base-200 hover:bg-base-300'
-                            }`}
-                          >
-                            <span className="text-3xl">{p.emoji}</span>
-                            <p className="font-bold mt-1">{p.name}</p>
-                            <p className="text-xs opacity-80">{p.description}</p>
-                          </button>
-                        ))}
-                      </div>
+                    <h3 className="font-bold mb-3">💖 Personality</h3>
+                    <div className="grid grid-cols-2 gap-3">
+                      {personalities.map((p) => (
+                        <button
+                          key={p.id}
+                          onClick={() => setPersonality(p.id)}
+                          className={`p-4 rounded-xl text-left transition-all ${
+                            personality === p.id 
+                              ? 'bg-gradient-to-br from-primary to-secondary text-primary-content shadow-lg' 
+                              : 'bg-base-200 hover:bg-base-300'
+                          }`}
+                        >
+                          <span className="text-3xl">{p.emoji}</span>
+                          <p className="font-bold mt-1">{p.name}</p>
+                          <p className="text-xs opacity-70">{p.description}</p>
+                        </button>
+                      ))}
                     </div>
-
-                    {/* Selected personality details */}
-                    {selectedPersonality && (
-                      <div className="p-4 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-xl">
-                        <div className="flex items-center gap-3">
-                          <span className="text-4xl">{selectedPersonality.emoji}</span>
-                          <div>
-                            <p className="font-bold">{horseName || 'Your horse'} is {selectedPersonality.name}!</p>
-                            <p className="text-sm text-base-content/70">{selectedPersonality.description}</p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                    
+                    {/* Selected personality display */}
+                    <div className="p-4 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-xl">
+                      <p className="text-center">
+                        <span className="text-4xl">{selectedPersonality?.emoji}</span>
+                      </p>
+                      <p className="text-center font-bold text-lg mt-2">
+                        {horseName || 'Your horse'} is {selectedPersonality?.name}!
+                      </p>
+                      <p className="text-center text-sm text-base-content/70">
+                        {selectedPersonality?.description}
+                      </p>
+                    </div>
                   </motion.div>
                 )}
 
@@ -900,97 +936,48 @@ export default function ViewerPage() {
                     exit={{ opacity: 0, y: -10 }}
                     className="space-y-6"
                   >
-                    <div>
-                      <h3 className="font-bold mb-4">⚡ Horse Stats</h3>
-                      <div className="space-y-5">
-                        <StatSlider 
-                          label="Speed" 
-                          value={speed} 
-                          onChange={setSpeed} 
-                          icon="🏃" 
-                          color="#f59e0b"
-                        />
-                        <StatSlider 
-                          label="Jumping" 
-                          value={jumping} 
-                          onChange={setJumping} 
-                          icon="🦘" 
-                          color="#10b981"
-                        />
-                        <StatSlider 
-                          label="Stamina" 
-                          value={stamina} 
-                          onChange={setStamina} 
-                          icon="💪" 
-                          color="#ef4444"
-                        />
-                        <StatSlider 
-                          label="Friendliness" 
-                          value={friendliness} 
-                          onChange={setFriendliness} 
-                          icon="💕" 
-                          color="#ec4899"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Stats Summary */}
-                    <div className="p-4 bg-base-200 rounded-xl">
-                      <p className="font-bold mb-2">📊 Stats Summary</p>
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div className="flex justify-between">
-                          <span>Total Points:</span>
-                          <span className="font-bold">{speed + jumping + stamina + friendliness}/40</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Best Trait:</span>
-                          <span className="font-bold">
-                            {Math.max(speed, jumping, stamina, friendliness) === speed && '🏃 Speed'}
-                            {Math.max(speed, jumping, stamina, friendliness) === jumping && '🦘 Jumping'}
-                            {Math.max(speed, jumping, stamina, friendliness) === stamina && '💪 Stamina'}
-                            {Math.max(speed, jumping, stamina, friendliness) === friendliness && '💕 Friendly'}
-                          </span>
-                        </div>
-                      </div>
+                    <h3 className="font-bold mb-4">📊 Horse Stats</h3>
+                    <StatSlider 
+                      label="Speed" 
+                      value={speed} 
+                      onChange={setSpeed} 
+                      icon="⚡" 
+                      color="#f59e0b" 
+                    />
+                    <StatSlider 
+                      label="Jumping" 
+                      value={jumping} 
+                      onChange={setJumping} 
+                      icon="🦘" 
+                      color="#10b981" 
+                    />
+                    <StatSlider 
+                      label="Stamina" 
+                      value={stamina} 
+                      onChange={setStamina} 
+                      icon="💪" 
+                      color="#3b82f6" 
+                    />
+                    <StatSlider 
+                      label="Friendliness" 
+                      value={friendliness} 
+                      onChange={setFriendliness} 
+                      icon="💕" 
+                      color="#ec4899" 
+                    />
+                    
+                    {/* Stats summary */}
+                    <div className="p-4 bg-base-200 rounded-xl mt-4">
+                      <p className="text-sm text-center text-base-content/70">
+                        Total Power: <span className="font-bold text-primary">{speed + jumping + stamina + friendliness}/40</span>
+                      </p>
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
-
-            {/* Action Buttons */}
-            <div className="mt-4 space-y-3">
-              <div className="flex gap-3">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={saveHorse}
-                  className={`btn flex-1 ${saved ? 'btn-success' : 'btn-primary'} btn-lg`}
-                >
-                  {saved ? '✓ Saved!' : <><Save className="w-5 h-5" /> Save as Main Horse</>}
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={saveToGallery}
-                  className="btn btn-secondary btn-lg"
-                >
-                  <Award className="w-5 h-5" /> Add to Gallery
-                </motion.button>
-              </div>
-              <p className="text-sm text-center text-base-content/60">
-                Your main horse appears in Horse Runner, Stable, and Photo Booth!
-              </p>
-            </div>
           </motion.div>
         </div>
-      </div>
-
-      {/* Back Link */}
-      <div className="text-center pb-8">
-        <Link href="/" className="btn btn-ghost text-primary">
-          <ChevronLeft className="w-4 h-4" /> Back to Home
-        </Link>
       </div>
 
       {/* Gallery Modal */}
@@ -1000,50 +987,56 @@ export default function ViewerPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
             onClick={() => setShowGallery(false)}
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-base-100 rounded-3xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto"
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-base-100 rounded-3xl p-6 max-w-4xl w-full max-h-[80vh] overflow-y-auto shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
-              <h2 className="text-2xl font-bold mb-4">📁 Horse Gallery</h2>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-black">📁 Horse Gallery</h2>
+                <button 
+                  onClick={() => setShowGallery(false)}
+                  className="btn btn-sm btn-ghost"
+                >
+                  ✕
+                </button>
+              </div>
+              
               {savedHorses.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-6xl mb-4">🐴</p>
-                  <p className="text-base-content/60">No horses saved yet!</p>
-                  <p className="text-sm text-base-content/40">Create a horse and add it to your gallery.</p>
+                <div className="text-center py-12">
+                  <p className="text-5xl mb-4">🐴</p>
+                  <p className="text-base-content/60">No saved horses yet!</p>
+                  <p className="text-sm text-base-content/40 mt-2">Create and save horses to see them here.</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {savedHorses.map((horse) => (
-                    <div 
-                      key={horse.id} 
-                      className="p-4 bg-base-200 rounded-xl flex items-center gap-4"
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {savedHorses.map((horse, index) => (
+                    <div
+                      key={index}
+                      className="bg-base-200 rounded-xl p-4 cursor-pointer hover:bg-base-300 transition-all group"
                     >
-                      <div 
-                        className="w-16 h-16 rounded-full"
-                        style={{ backgroundColor: horse.coatColor }}
-                      />
-                      <div className="flex-1">
-                        <p className="font-bold">{horse.name}</p>
-                        <p className="text-sm text-base-content/60">
-                          {horseBreeds.find(b => b.id === horse.breed)?.name}
-                        </p>
+                      <div className="flex justify-center mb-3">
+                        <HorseSVG horse={horse} size="md" animated={false} />
                       </div>
-                      <div className="flex gap-2">
-                        <button 
+                      <p className="font-bold text-center">{horse.name}</p>
+                      <p className="text-xs text-center text-base-content/60">
+                        {horseBreeds.find(b => b.id === horse.breed)?.name}
+                      </p>
+                      <div className="flex gap-2 mt-3">
+                        <button
                           onClick={() => loadFromGallery(horse)}
-                          className="btn btn-sm btn-primary"
+                          className="btn btn-sm btn-primary flex-1"
                         >
                           Load
                         </button>
-                        <button 
-                          onClick={() => deleteFromGallery(horse.id)}
-                          className="btn btn-sm btn-ghost text-error"
+                        <button
+                          onClick={() => deleteFromGallery(index)}
+                          className="btn btn-sm btn-error btn-outline"
                         >
                           🗑️
                         </button>
@@ -1052,48 +1045,17 @@ export default function ViewerPage() {
                   ))}
                 </div>
               )}
-              <button 
-                onClick={() => setShowGallery(false)}
-                className="btn btn-ghost w-full mt-4"
-              >
-                Close
-              </button>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Screenshot Modal */}
-      <AnimatePresence>
-        {screenshot && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
-            onClick={() => setScreenshot(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-base-100 rounded-3xl p-6 max-w-lg w-full"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <h2 className="text-2xl font-bold mb-4">📸 Horse Photo</h2>
-              <img src={screenshot} alt="Horse screenshot" className="w-full rounded-xl mb-4" />
-              <div className="flex gap-3">
-                <button onClick={downloadScreenshot} className="btn btn-primary flex-1">
-                  <Download className="w-4 h-4" /> Download
-                </button>
-                <button onClick={() => setScreenshot(null)} className="btn btn-ghost">
-                  Close
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Back to Home */}
+      <div className="text-center pb-8">
+        <Link href="/" className="btn btn-ghost btn-lg text-primary">
+          ← Back to Home
+        </Link>
+      </div>
     </div>
   );
 }
