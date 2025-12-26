@@ -1,8 +1,8 @@
 'use client';
 
-import { Suspense, useState, useEffect } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Stage, useGLTF, PresentationControls } from '@react-three/drei';
+import { Suspense, useState, useEffect, useRef } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { OrbitControls, Stage, useGLTF, PresentationControls, useAnimations, Html } from '@react-three/drei';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import * as THREE from 'three';
@@ -18,8 +18,20 @@ const horseColors = [
   { name: 'Purple', color: '#9370DB' },
 ];
 
-function HorseModel({ scale = 0.1, color }: { scale?: number; color: string }) {
-  const { scene } = useGLTF('/models/horse.glb');
+function HorseModel({ scale = 0.02, color }: { scale?: number; color: string }) {
+  const group = useRef<THREE.Group>(null);
+  const { scene, animations } = useGLTF('/models/horse.glb');
+  const { actions } = useAnimations(animations, group);
+  
+  useEffect(() => {
+    // Play the first animation if available
+    if (actions && Object.keys(actions).length > 0) {
+      const firstAction = Object.values(actions)[0];
+      if (firstAction) {
+        firstAction.play();
+      }
+    }
+  }, [actions]);
   
   useEffect(() => {
     scene.traverse((child) => {
@@ -33,7 +45,18 @@ function HorseModel({ scale = 0.1, color }: { scale?: number; color: string }) {
     });
   }, [scene, color]);
   
-  return <primitive object={scene} scale={scale} />;
+  return <primitive ref={group} object={scene} scale={scale} position={[0, -1, 0]} />;
+}
+
+function LoadingFallback() {
+  return (
+    <Html center>
+      <div className="flex flex-col items-center gap-2">
+        <span className="loading loading-spinner loading-lg text-primary"></span>
+        <span className="text-sm text-base-content/60">Loading horse...</span>
+      </div>
+    </Html>
+  );
 }
 
 export default function ViewerPage() {
@@ -76,10 +99,10 @@ export default function ViewerPage() {
           <Canvas shadows camera={{ position: [0, 0, 5], fov: 50 }}>
             <ambientLight intensity={0.5} />
             <directionalLight position={[10, 10, 5]} intensity={1} castShadow />
-            <Suspense fallback={null}>
+            <Suspense fallback={<LoadingFallback />}>
               <PresentationControls speed={1.5} global zoom={0.7} polar={[-0.1, Math.PI / 4]}>
                 <Stage environment="city" intensity={0.6}>
-                  <HorseModel scale={0.1} color={horseColor} />
+                  <HorseModel scale={0.02} color={horseColor} />
                 </Stage>
               </PresentationControls>
             </Suspense>

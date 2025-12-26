@@ -5,10 +5,21 @@ import { JigsawPuzzle } from 'react-jigsaw-puzzle';
 import 'react-jigsaw-puzzle/lib/jigsaw-puzzle.css';
 import Confetti from 'react-confetti';
 
+// Using actual images from public/images folder
 const images = [
-  '/images/piper2.jpg', '/images/piper3.jpg', '/images/piper4.jpg', '/images/piper5.jpg',
-  '/images/piper6.jpg', '/images/piper7.jpg', '/images/Piper8.jpg', '/images/piper9.jpg',
-  '/images/piper10.jpg', '/images/piper11.jpg', '/images/piper12.jpg', '/images/piper13.jpg', '/images/pirer1.jpg',
+  '/images/IMG_2655.jpg',
+  '/images/IMG_3163.JPEG',
+  '/images/IMG_3533.JPG',
+  '/images/IMG_3777.JPG',
+  '/images/IMG_3814.jpg',
+  '/images/IMG_4274.JPG',
+  '/images/IMG_4910.jpeg',
+  '/images/IMG_6025.JPEG',
+  '/images/IMG_9669.jpg',
+  '/images/IMG_9802.jpeg',
+  '/images/70076492137__D91E9AE1-A86A-418F-AC15-519CB2D40FCE.JPEG',
+  '/images/E97A8D6D-1EE7-481D-B8C6-706DB72AC009.JPEG',
+  '/images/F86C440D-2F80-419E-B3DA-66EC60D8D6FC.JPG',
 ];
 
 export default function PuzzlePage() {
